@@ -2,6 +2,7 @@ class_name Grass
 extends Area2D
 
 @export var state: GrassData.State = GrassData.State.PLAIN
+var offered_to_npcs := false
 
 
 func _ready() -> void:
@@ -18,6 +19,11 @@ func get_item_data() -> GrassData:
 	var item := GrassData.new()
 	item.state = state
 	return item
+
+
+func offer_to_npcs() -> void:
+	offered_to_npcs = true
+	add_to_group("npc_food")
 
 
 func _on_body_entered(body: Node2D) -> void:

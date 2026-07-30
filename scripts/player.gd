@@ -61,4 +61,5 @@ func drop_grass(inventory_index: int, drop_position: Vector2) -> Grass:
 	grass.state = item.state
 	grass.global_position = drop_position
 	get_tree().current_scene.add_child(grass)
+	grass.offer_to_npcs()
 	return grass

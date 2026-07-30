@@ -13,6 +13,7 @@ func _run() -> void:
 
 	var player = game.get_node("World/Entities/Player")
 	var menu = game.get_node("UI/InventoryMenu")
+	game.get_node("World/Items/Grass").queue_free()
 	var item := GrassData.new()
 	player.collect_grass(item)
 	menu.set_menu_open(true)
@@ -34,6 +35,21 @@ func _run() -> void:
 	menu._change_selected_state(-1)
 	if player.grass_inventory[0].state != GrassData.State.TASTY:
 		push_error("Inventory navigation did not change the grass state.")
+		quit(1)
+		return
+
+	var wolf = game.get_node("World/Entities/NPCs/Wolf")
+	player.global_position = Vector2(150, 0)
+	player.rotation = PI / 2.0
+	menu._drop_selected_item()
+	await physics_frame
+	await physics_frame
+
+	if not player.grass_inventory.is_empty() or wolf.trust != 25:
+		push_error(
+			"Dropped tasty grass failed: inventory=%d trust=%d"
+			% [player.grass_inventory.size(), wolf.trust]
+		)
 		quit(1)
 		return
 

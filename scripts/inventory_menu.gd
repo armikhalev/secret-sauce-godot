@@ -35,6 +35,9 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif visible and event.is_action_pressed("ui_left"):
 		_change_selected_state(-1)
 		get_viewport().set_input_as_handled()
+	elif visible and event.is_action_pressed("ui_accept"):
+		_drop_selected_item()
+		get_viewport().set_input_as_handled()
 
 
 func set_menu_open(open: bool) -> void:
@@ -105,3 +108,17 @@ func _change_selected_state(direction: int) -> void:
 	var new_state := posmod(selector.selected + direction, state_count)
 	selector.select(new_state)
 	player.set_grass_state(selected_item_index, new_state as GrassData.State)
+
+
+func _drop_selected_item() -> void:
+	if player.grass_inventory.is_empty():
+		return
+
+	var forward := Vector2.UP.rotated(player.rotation)
+	var drop_position := player.global_position + forward * 96.0
+	player.drop_grass(selected_item_index, drop_position)
+
+	if player.grass_inventory.is_empty():
+		selected_item_index = 0
+	else:
+		selected_item_index = mini(selected_item_index, player.grass_inventory.size() - 1)
