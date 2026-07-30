@@ -1,6 +1,14 @@
 extends CharacterBody2D
 
+signal stats_changed(bravery: int, vitality: int, energy: int)
+
 @export var move_speed: float = 260.0
+@export_group("Stats")
+@export_range(0, 100) var bravery: int = 0
+@export_range(0, 100) var vitality: int = 100
+@export_range(0, 100) var energy: int = 100
+
+var grass_inventory: Array[GrassData] = []
 
 
 func _physics_process(_delta: float) -> void:
@@ -11,3 +19,42 @@ func _physics_process(_delta: float) -> void:
 		rotation = direction.angle() + PI / 2.0
 
 	move_and_slide()
+
+
+func change_bravery(amount: int, direction: bool) -> void:
+	bravery = clampi(bravery + amount, 0, 100) if direction else clampi(bravery - amount, 0, 100)
+	stats_changed.emit(bravery, vitality, energy)
+
+
+func change_vitality(amount: int, direction: bool) -> void:
+	vitality = clampi(vitality + amount, 0, 100) if direction else clampi(vitality - amount, 0, 100)
+	stats_changed.emit(bravery, vitality, energy)
+
+
+func change_energy(amount: int, direction: bool) -> void:
+	energy = clampi(energy + amount, 0, 100) if direction else clampi(energy - amount, 0, 100)
+	stats_changed.emit(bravery, vitality, energy)
+
+
+func collect_grass(item: GrassData) -> void:
+	grass_inventory.append(item)
+
+
+func set_grass_state(inventory_index: int, state: GrassData.State) -> bool:
+	if inventory_index < 0 or inventory_index >= grass_inventory.size():
+		return false
+
+	grass_inventory[inventory_index].state = state
+	return true
+
+
+func drop_grass(inventory_index: int, drop_position: Vector2) -> Grass:
+	if inventory_index < 0 or inventory_index >= grass_inventory.size():
+		return null
+
+	var item: GrassData = grass_inventory.pop_at(inventory_index)
+	var grass := preload("res://scenes/grass.tscn").instantiate() as Grass
+	grass.state = item.state
+	grass.global_position = drop_position
+	get_tree().current_scene.add_child(grass)
+	return grass
