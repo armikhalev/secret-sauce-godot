@@ -1,6 +1,7 @@
 extends CharacterBody2D
 
 signal stats_changed(bravery: int, vitality: int, energy: int)
+signal grass_inventory_changed
 
 @export var move_speed: float = 260.0
 @export_group("Stats")
@@ -38,6 +39,7 @@ func change_energy(amount: int, direction: bool) -> void:
 
 func collect_grass(item: GrassData) -> void:
 	grass_inventory.append(item)
+	grass_inventory_changed.emit()
 
 
 func set_grass_state(inventory_index: int, state: GrassData.State) -> bool:
@@ -45,6 +47,7 @@ func set_grass_state(inventory_index: int, state: GrassData.State) -> bool:
 		return false
 
 	grass_inventory[inventory_index].state = state
+	grass_inventory_changed.emit()
 	return true
 
 
@@ -53,6 +56,7 @@ func drop_grass(inventory_index: int, drop_position: Vector2) -> Grass:
 		return null
 
 	var item: GrassData = grass_inventory.pop_at(inventory_index)
+	grass_inventory_changed.emit()
 	var grass := preload("res://scenes/grass.tscn").instantiate() as Grass
 	grass.state = item.state
 	grass.global_position = drop_position

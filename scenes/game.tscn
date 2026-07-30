@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/player.tscn" id="1_player"]
 [ext_resource type="Script" path="res://scripts/world_grid.gd" id="2_grid"]
 [ext_resource type="PackedScene" path="res://scenes/wolf.tscn" id="3_wolf"]
 [ext_resource type="PackedScene" path="res://scenes/grass.tscn" id="4_grass"]
+[ext_resource type="PackedScene" path="res://scenes/inventory_menu.tscn" id="5_inventory"]
 
 [node name="Game" type="Node2D"]
 
@@ -58,4 +59,7 @@ mouse_filter = 2
 [node name="Title" type="Label" parent="UI/MarginContainer"]
 theme_override_colors/font_color = Color(1, 0.91, 0.68, 1)
 theme_override_font_sizes/font_size = 24
-text = "SECRET SAUCE"
+text = "SECRET SAUCE\n[I] Inventory"
+
+[node name="InventoryMenu" parent="UI" instance=ExtResource("5_inventory")]
+player_path = NodePath("../../World/Entities/Player")
