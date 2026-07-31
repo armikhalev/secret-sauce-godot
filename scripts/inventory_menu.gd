@@ -23,22 +23,22 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("toggle_inventory"):
 		set_menu_open(not visible)
 		get_viewport().set_input_as_handled()
-	elif visible and event.is_action_pressed("ui_cancel"):
+	elif visible and event.is_action_pressed("menu_cancel"):
 		set_menu_open(false)
 		get_viewport().set_input_as_handled()
-	elif visible and event.is_action_pressed("ui_down"):
+	elif visible and event.is_action_pressed("menu_down"):
 		_select_item(selected_item_index + 1)
 		get_viewport().set_input_as_handled()
-	elif visible and event.is_action_pressed("ui_up"):
+	elif visible and event.is_action_pressed("menu_up"):
 		_select_item(selected_item_index - 1)
 		get_viewport().set_input_as_handled()
-	elif visible and event.is_action_pressed("ui_right"):
+	elif visible and event.is_action_pressed("menu_right"):
 		_change_selected_state(1)
 		get_viewport().set_input_as_handled()
-	elif visible and event.is_action_pressed("ui_left"):
+	elif visible and event.is_action_pressed("menu_left"):
 		_change_selected_state(-1)
 		get_viewport().set_input_as_handled()
-	elif visible and event.is_action_pressed("ui_accept"):
+	elif visible and event.is_action_pressed("menu_accept"):
 		_drop_selected_item()
 		get_viewport().set_input_as_handled()
 

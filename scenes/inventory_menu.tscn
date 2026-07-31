@@ -66,7 +66,7 @@ theme_override_constants/separation = 10
 [node name="Controls" type="Label" parent="LeftPanel/Margin/Content"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.68, 0.7, 0.7, 1)
-text = "↑/↓  Select\n←/→  Change state\nEnter / A  Drop\nI / Esc  Close"
+text = "Right Stick ↑/↓  Select\nRight Stick ←/→  Change\nCross / Enter  Drop\nCircle / Esc  Close"
 horizontal_alignment = 1
 
 [node name="RightPanel" type="PanelContainer" parent="."]
