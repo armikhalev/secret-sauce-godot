@@ -19,7 +19,7 @@ func _ready() -> void:
 	hide()
 
 
-func _unhandled_input(event: InputEvent) -> void:
+func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("toggle_inventory"):
 		set_menu_open(not visible)
 		get_viewport().set_input_as_handled()
@@ -91,14 +91,14 @@ func _on_inventory_changed() -> void:
 		rebuild_item_list()
 
 
-func _on_player_stats_changed(_bravery: int, _vitality: int, _energy: int) -> void:
+func _on_player_stats_changed(_bravery: int, _vitality: int, _energy: int, _awareness: int) -> void:
 	_update_player_stats()
 
 
 func _update_player_stats() -> void:
 	player_stats_label.text = (
-		"BRAVERY\n%d / 100\n\nVITALITY\n%d / 100\n\nENERGY\n%d / 100"
-		% [player.bravery, player.vitality, player.energy]
+		"BRAVERY\n%d / 100\n\nVITALITY\n%d / 100\n\nENERGY\n%d / 100\n\nAWARENESS\n%d / 100"
+		% [player.bravery, player.vitality, player.energy, player.awareness]
 	)
 
 

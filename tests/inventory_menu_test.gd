@@ -17,12 +17,24 @@ func _run() -> void:
 	game.get_node("World/Items/Lew").queue_free()
 	var item := LewData.new()
 	player.collect_lew(item)
+	player.collect_lew(LewData.new())
 	menu.set_menu_open(true)
 
 	if not menu.visible:
 		push_error("Inventory menu did not open correctly.")
 		quit(1)
 		return
+
+	var down_arrow := InputEventKey.new()
+	down_arrow.physical_keycode = KEY_DOWN
+	down_arrow.pressed = true
+	Input.parse_input_event(down_arrow)
+	await process_frame
+	if menu.selected_item_index != 1:
+		push_error("Keyboard Down arrow did not select the next inventory item.")
+		quit(1)
+		return
+	menu._select_item(0)
 
 	player.change_vitality(25, false)
 	if "75 / 100" not in menu.player_stats_label.text:
@@ -44,6 +56,9 @@ func _run() -> void:
 		push_error("Inventory navigation did not change the lew state.")
 		quit(1)
 		return
+
+	player.lew_inventory.remove_at(1)
+	player.lew_inventory_changed.emit()
 
 	var saykwastes = game.get_node("World/Entities/NPCs/Saykwastes")
 	saykwastes.global_position = Vector2(260, 0)

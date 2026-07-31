@@ -1,6 +1,6 @@
 extends CharacterBody2D
 
-signal stats_changed(bravery: int, vitality: int, energy: int)
+signal stats_changed(bravery: int, vitality: int, energy: int, awareness: int)
 signal lew_inventory_changed
 
 @export var move_speed: float = 260.0
@@ -8,6 +8,11 @@ signal lew_inventory_changed
 @export_range(0, 100) var bravery: int = 0
 @export_range(0, 100) var vitality: int = 100
 @export_range(0, 100) var energy: int = 100
+@export_range(0, 100) var awareness: int = 50
+@export_group("Camera")
+@export var zoom_speed: float = 1.1
+@export var zoom_step: float = 0.1
+@export var default_camera_zoom: float = 1.0
 
 var lew_inventory: Array[LewData] = []
 var concealment_sources := 0
@@ -34,19 +39,58 @@ func _physics_process(delta: float) -> void:
 			collider.receive_push(intended_motion)
 
 
+func _process(delta: float) -> void:
+	var zoom_input := Input.get_axis("zoom_out", "zoom_in")
+	if is_zero_approx(zoom_input):
+		return
+
+	_change_camera_zoom(zoom_input * zoom_speed * delta)
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if not event is InputEventMouseButton and not event is InputEventKey:
+		return
+	if not event.is_pressed() or event.is_echo():
+		return
+
+	if event.is_action_pressed("zoom_in"):
+		_change_camera_zoom(zoom_step)
+	elif event.is_action_pressed("zoom_out"):
+		_change_camera_zoom(-zoom_step)
+
+
+func _change_camera_zoom(amount: float) -> void:
+	var camera := $Camera2D as Camera2D
+	var zoom_value := camera.zoom.x + amount
+	zoom_value = clampf(zoom_value, get_minimum_camera_zoom(), default_camera_zoom)
+	camera.zoom = Vector2.ONE * zoom_value
+
+
+func get_minimum_camera_zoom() -> float:
+	return lerpf(1.0, 0.5, float(awareness) / 100.0)
+
+
 func change_bravery(amount: int, direction: bool) -> void:
 	bravery = clampi(bravery + amount, 0, 100) if direction else clampi(bravery - amount, 0, 100)
-	stats_changed.emit(bravery, vitality, energy)
+	stats_changed.emit(bravery, vitality, energy, awareness)
 
 
 func change_vitality(amount: int, direction: bool) -> void:
 	vitality = clampi(vitality + amount, 0, 100) if direction else clampi(vitality - amount, 0, 100)
-	stats_changed.emit(bravery, vitality, energy)
+	stats_changed.emit(bravery, vitality, energy, awareness)
 
 
 func change_energy(amount: int, direction: bool) -> void:
 	energy = clampi(energy + amount, 0, 100) if direction else clampi(energy - amount, 0, 100)
-	stats_changed.emit(bravery, vitality, energy)
+	stats_changed.emit(bravery, vitality, energy, awareness)
+
+
+func change_awareness(amount: int, direction: bool) -> void:
+	awareness = clampi(awareness + amount, 0, 100) if direction else clampi(awareness - amount, 0, 100)
+	var camera := $Camera2D as Camera2D
+	var clamped_zoom := maxf(camera.zoom.x, get_minimum_camera_zoom())
+	camera.zoom = Vector2.ONE * clamped_zoom
+	stats_changed.emit(bravery, vitality, energy, awareness)
 
 
 func collect_lew(item: LewData) -> void:
