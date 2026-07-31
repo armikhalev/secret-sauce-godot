@@ -10,15 +10,25 @@ extends CharacterBody2D
 @export_group("Movement")
 @export var approach_speed: float = 65.0
 @export var eating_distance: float = 42.0
+@export_group("Poison")
+@export var poison_tick_damage: int = 5
 
 var target_grass: Grass
+var is_poisoned := false
+var is_dead := false
 
 
 func _ready() -> void:
+	$PoisonTimer.timeout.connect(_on_poison_tick)
 	_update_debug_stats()
 
 
 func _physics_process(_delta: float) -> void:
+	if is_dead:
+		move_and_slide()
+		velocity = Vector2.ZERO
+		return
+
 	if not is_instance_valid(target_grass):
 		target_grass = _find_closest_offered_grass()
 
@@ -41,11 +51,54 @@ func eat_grass(grass: Grass) -> void:
 	match grass.state:
 		GrassData.State.POISONOUS:
 			vitality = clampi(vitality - 25, 0, 100)
+			_start_poisoning()
 		GrassData.State.TASTY:
 			trust = clampi(trust + 25, 0, 100)
 
+	if vitality <= 0:
+		_die()
+
 	_update_debug_stats()
 	grass.queue_free()
+
+
+func receive_push(push_velocity: Vector2) -> void:
+	if is_dead:
+		velocity = push_velocity
+
+
+func _start_poisoning() -> void:
+	if is_dead:
+		return
+
+	is_poisoned = true
+	if $PoisonTimer.is_stopped():
+		$PoisonTimer.start()
+
+
+func _on_poison_tick() -> void:
+	if is_dead or not is_poisoned:
+		return
+
+	vitality = clampi(vitality - poison_tick_damage, 0, 100)
+	_update_debug_stats()
+
+	if vitality <= 0:
+		_die()
+
+
+func _die() -> void:
+	if is_dead:
+		return
+
+	is_dead = true
+	is_poisoned = false
+	target_grass = null
+	velocity = Vector2.ZERO
+	$PoisonTimer.stop()
+	$Body.color = Color(0.09, 0.1, 0.11, 1.0)
+	$Label.text = "moxoy"
+	_update_debug_stats()
 
 
 func _find_closest_offered_grass() -> Grass:

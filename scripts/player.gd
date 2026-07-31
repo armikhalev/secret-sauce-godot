@@ -21,6 +21,11 @@ func _physics_process(_delta: float) -> void:
 
 	move_and_slide()
 
+	for collision_index in get_slide_collision_count():
+		var collider := get_slide_collision(collision_index).get_collider()
+		if collider.has_method("receive_push"):
+			collider.receive_push(velocity.normalized() * move_speed * 0.7)
+
 
 func change_bravery(amount: int, direction: bool) -> void:
 	bravery = clampi(bravery + amount, 0, 100) if direction else clampi(bravery - amount, 0, 100)
