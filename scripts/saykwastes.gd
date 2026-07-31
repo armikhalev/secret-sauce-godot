@@ -127,7 +127,7 @@ func eat_lew(lew: Lew) -> void:
 		_die()
 
 	_update_debug_stats()
-	lew.queue_free()
+	lew.remove_from_world()
 
 
 func get_trust_toward(target: Node) -> int:

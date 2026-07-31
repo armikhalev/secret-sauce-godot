@@ -61,7 +61,7 @@ func eat_lew(lew: Lew) -> void:
 		trust = clampi(trust + 25, 0, 100)
 
 	_update_debug_stats()
-	lew.queue_free()
+	lew.remove_from_world()
 
 
 func _start_hop() -> void:

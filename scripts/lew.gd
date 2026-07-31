@@ -1,9 +1,13 @@
 class_name Lew
 extends Area2D
 
+signal removed
+
 @export var state: LewData.State = LewData.State.PLAIN
+@export var spawn_slot_id: int = -1
 var offered_to_npcs := false
 var offered_by: Node
+var is_being_removed := false
 
 
 func _ready() -> void:
@@ -31,7 +35,16 @@ func offer_to_npcs() -> void:
 func _on_body_entered(body: Node2D) -> void:
 	if body.has_method("collect_lew"):
 		body.collect_lew(get_item_data())
-		queue_free()
+		remove_from_world()
+
+
+func remove_from_world() -> void:
+	if is_being_removed:
+		return
+
+	is_being_removed = true
+	removed.emit()
+	queue_free()
 
 
 func _update_appearance() -> void:
