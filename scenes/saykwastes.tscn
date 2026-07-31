@@ -6,6 +6,7 @@
 size = Vector2(112, 112)
 
 [node name="Saykwastes" type="CharacterBody2D"]
+metadata/creature_type = "square wolf"
 script = ExtResource("1_saykwastes")
 
 [node name="Body" type="Polygon2D" parent="."]

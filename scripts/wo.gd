@@ -24,6 +24,7 @@ var random := RandomNumberGenerator.new()
 
 
 func _ready() -> void:
+	add_to_group("wo")
 	random.randomize()
 	rest_time_remaining = random.randf_range(0.1, rest_duration)
 	_update_debug_stats()

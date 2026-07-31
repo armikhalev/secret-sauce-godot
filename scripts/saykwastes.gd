@@ -32,6 +32,7 @@ var aggression_by_target: Dictionary[int, int] = {}
 
 
 func _ready() -> void:
+	add_to_group("saykwastes")
 	$PoisonTimer.timeout.connect(_on_poison_tick)
 	_update_debug_stats()
 
