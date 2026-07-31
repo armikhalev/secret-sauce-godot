@@ -12,6 +12,7 @@ extends CharacterBody2D
 @export var eating_distance: float = 62.0
 @export var lew_notice_radius: float = 560.0
 @export var aggression_radius: float = 560.0
+@export var home_arrival_distance: float = 6.0
 @export_group("Combat")
 @export var attack_speed: float = 110.0
 @export var retreat_speed: float = 95.0
@@ -29,10 +30,12 @@ var retreat_time_remaining := 0.0
 var attack_cooldown_remaining := 0.0
 var trust_by_target: Dictionary[int, int] = {}
 var aggression_by_target: Dictionary[int, int] = {}
+var home_position := Vector2.ZERO
 
 
 func _ready() -> void:
 	add_to_group("saykwastes")
+	home_position = global_position
 	$PoisonTimer.timeout.connect(_on_poison_tick)
 	_update_debug_stats()
 
@@ -48,7 +51,7 @@ func _physics_process(delta: float) -> void:
 	if not is_instance_valid(target_lew):
 		if _process_player_attack(delta):
 			return
-		velocity = Vector2.ZERO
+		_return_home()
 		return
 
 	var distance_to_lew := global_position.distance_to(target_lew.global_position)
@@ -59,6 +62,16 @@ func _physics_process(delta: float) -> void:
 		return
 
 	velocity = global_position.direction_to(target_lew.global_position) * approach_speed
+	move_and_slide()
+
+
+func _return_home() -> void:
+	if global_position.distance_to(home_position) <= home_arrival_distance:
+		global_position = home_position
+		velocity = Vector2.ZERO
+		return
+
+	velocity = global_position.direction_to(home_position) * approach_speed
 	move_and_slide()
 
 
