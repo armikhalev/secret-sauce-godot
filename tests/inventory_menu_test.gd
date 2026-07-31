@@ -44,17 +44,17 @@ func _run() -> void:
 		quit(1)
 		return
 
-	var wolf = game.get_node("World/Entities/NPCs/Wolf")
+	var saykwastes = game.get_node("World/Entities/NPCs/Saykwastes")
 	player.global_position = Vector2(150, 0)
 	player.rotation = PI / 2.0
 	menu._drop_selected_item()
 	await physics_frame
 	await physics_frame
 
-	if not player.grass_inventory.is_empty() or wolf.trust != 25:
+	if not player.grass_inventory.is_empty() or saykwastes.trust != 25:
 		push_error(
 			"Dropped tasty grass failed: inventory=%d trust=%d"
-			% [player.grass_inventory.size(), wolf.trust]
+			% [player.grass_inventory.size(), saykwastes.trust]
 		)
 		quit(1)
 		return

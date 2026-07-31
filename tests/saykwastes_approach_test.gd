@@ -10,9 +10,9 @@ func _run() -> void:
 	root.add_child(world)
 	current_scene = world
 
-	var wolf := (load("res://scenes/wolf.tscn") as PackedScene).instantiate()
+	var saykwastes := (load("res://scenes/saykwastes.tscn") as PackedScene).instantiate()
 	var grass := (load("res://scenes/grass.tscn") as PackedScene).instantiate() as Grass
-	world.add_child(wolf)
+	world.add_child(saykwastes)
 	grass.position = Vector2(200, 0)
 	grass.state = GrassData.State.TASTY
 	world.add_child(grass)
@@ -23,20 +23,20 @@ func _run() -> void:
 		if not is_instance_valid(grass):
 			break
 
-	if wolf.position.x <= 0.0:
-		push_error("Wolf did not approach dropped grass.")
+	if saykwastes.position.x <= 0.0:
+		push_error("Saykwastes did not approach dropped grass.")
 		quit(1)
 		return
 
-	if is_instance_valid(grass) or wolf.trust != 25:
-		push_error("Wolf did not eat tasty grass after approaching it.")
+	if is_instance_valid(grass) or saykwastes.trust != 25:
+		push_error("Saykwastes did not eat tasty grass after approaching it.")
 		quit(1)
 		return
 
-	if "TRS 25" not in wolf.get_node("DebugStats").text:
-		push_error("Wolf debug stats did not update.")
+	if "TRS 25" not in saykwastes.get_node("DebugStats").text:
+		push_error("Saykwastes debug stats did not update.")
 		quit(1)
 		return
 
-	print("Wolf approach, eating, and debug stats verified.")
+	print("Saykwastes approach, eating, and debug stats verified.")
 	quit()

@@ -11,7 +11,7 @@ func _run() -> void:
 	current_scene = game
 
 	var player := game.get_node("World/Entities/Player")
-	var wolf := game.get_node("World/Entities/NPCs/Wolf")
+	var saykwastes := game.get_node("World/Entities/NPCs/Saykwastes")
 	var grass := game.get_node("World/Items/Grass") as Grass
 
 	grass._on_body_entered(player)
@@ -23,25 +23,25 @@ func _run() -> void:
 		return
 
 	player.set_grass_state(0, GrassData.State.TASTY)
-	var tasty_grass: Grass = player.drop_grass(0, wolf.global_position)
-	wolf.eat_grass(tasty_grass)
+	var tasty_grass: Grass = player.drop_grass(0, saykwastes.global_position)
+	saykwastes.eat_grass(tasty_grass)
 	await process_frame
 
-	if wolf.trust != 25:
-		push_error("Tasty grass did not increase wolf trust.")
+	if saykwastes.trust != 25:
+		push_error("Tasty grass did not increase saykwastes trust.")
 		quit(1)
 		return
 
 	var poisonous_grass := (load("res://scenes/grass.tscn") as PackedScene).instantiate() as Grass
 	poisonous_grass.state = GrassData.State.POISONOUS
 	game.add_child(poisonous_grass)
-	wolf.eat_grass(poisonous_grass)
+	saykwastes.eat_grass(poisonous_grass)
 	await process_frame
 
-	if wolf.vitality != 75:
-		push_error("Poisonous grass did not reduce wolf vitality.")
+	if saykwastes.vitality != 75:
+		push_error("Poisonous grass did not reduce saykwastes vitality.")
 		quit(1)
 		return
 
-	print("Grass collection, state changes, dropping, and wolf effects verified.")
+	print("Grass collection, state changes, dropping, and saykwastes effects verified.")
 	quit()
