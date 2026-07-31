@@ -12,7 +12,11 @@ func _run() -> void:
 
 	var player := game.get_node("World/Entities/Player")
 	var saykwastes := game.get_node("World/Entities/NPCs/Saykwastes")
-	var grass := game.get_node("World/Items/Grass") as Grass
+	var grass := game.get_node("World/Items/Lew") as Grass
+	if grass.get_node("Label").text != "lew":
+		push_error("Lew label is missing.")
+		quit(1)
+		return
 
 	grass._on_body_entered(player)
 	await process_frame

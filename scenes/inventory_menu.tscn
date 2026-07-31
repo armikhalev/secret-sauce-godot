@@ -36,12 +36,12 @@ theme_override_constants/separation = 14
 layout_mode = 2
 theme_override_colors/font_color = Color(0.5, 0.82, 0.38, 1)
 theme_override_font_sizes/font_size = 25
-text = "Grass Inventory"
+text = "Lew Inventory"
 horizontal_alignment = 1
 
 [node name="Instructions" type="Label" parent="LeftPanel/Margin/Content"]
 layout_mode = 2
-text = "Choose a state for each\ncollected grass."
+text = "Choose a state for each\ncollected lew."
 horizontal_alignment = 1
 
 [node name="Separator" type="HSeparator" parent="LeftPanel/Margin/Content"]
@@ -50,7 +50,7 @@ layout_mode = 2
 [node name="EmptyLabel" type="Label" parent="LeftPanel/Margin/Content"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "No grass collected yet."
+text = "No lew collected yet."
 horizontal_alignment = 1
 
 [node name="ScrollContainer" type="ScrollContainer" parent="LeftPanel/Margin/Content"]

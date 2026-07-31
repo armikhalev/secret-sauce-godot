@@ -13,7 +13,7 @@ func _run() -> void:
 
 	var player = game.get_node("World/Entities/Player")
 	var menu = game.get_node("UI/InventoryMenu")
-	game.get_node("World/Items/Grass").queue_free()
+	game.get_node("World/Items/Lew").queue_free()
 	var item := GrassData.new()
 	player.collect_grass(item)
 	menu.set_menu_open(true)

@@ -63,7 +63,7 @@ func rebuild_item_list() -> void:
 		var item_label := Label.new()
 		var state_selector := OptionButton.new()
 
-		item_label.text = "Grass %d" % (index + 1)
+		item_label.text = "Lew %d" % (index + 1)
 		item_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
 		state_selector.add_item("Plain", GrassData.State.PLAIN)
