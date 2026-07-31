@@ -25,7 +25,6 @@ func _ready() -> void:
 
 func _physics_process(_delta: float) -> void:
 	if is_dead:
-		move_and_slide()
 		velocity = Vector2.ZERO
 		return
 
@@ -62,9 +61,9 @@ func eat_grass(grass: Grass) -> void:
 	grass.queue_free()
 
 
-func receive_push(push_velocity: Vector2) -> void:
+func receive_push(push_motion: Vector2) -> void:
 	if is_dead:
-		velocity = push_velocity
+		global_position += push_motion
 
 
 func _start_poisoning() -> void:

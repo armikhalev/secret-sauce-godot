@@ -12,19 +12,20 @@ signal grass_inventory_changed
 var grass_inventory: Array[GrassData] = []
 
 
-func _physics_process(_delta: float) -> void:
+func _physics_process(delta: float) -> void:
 	var direction := Input.get_vector("move_left", "move_right", "move_up", "move_down")
 	velocity = direction * move_speed
 
 	if direction != Vector2.ZERO:
 		rotation = direction.angle() + PI / 2.0
 
+	var intended_motion := velocity * delta
 	move_and_slide()
 
 	for collision_index in get_slide_collision_count():
 		var collider := get_slide_collision(collision_index).get_collider()
 		if collider.has_method("receive_push"):
-			collider.receive_push(velocity.normalized() * move_speed * 0.7)
+			collider.receive_push(intended_motion)
 
 
 func change_bravery(amount: int, direction: bool) -> void:
