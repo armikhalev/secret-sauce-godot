@@ -12,6 +12,10 @@ signal grass_inventory_changed
 var grass_inventory: Array[GrassData] = []
 
 
+func _ready() -> void:
+	add_to_group("player")
+
+
 func _physics_process(delta: float) -> void:
 	var direction := Input.get_vector("move_left", "move_right", "move_up", "move_down")
 	velocity = direction * move_speed

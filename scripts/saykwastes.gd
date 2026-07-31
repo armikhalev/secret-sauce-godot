@@ -4,19 +4,26 @@ extends CharacterBody2D
 @export_range(0, 100) var bravery: int = 0
 @export_range(0, 100) var vitality: int = 100
 @export_range(0, 100) var hunger: int = 0
-@export_range(0, 100) var aggression: int = 0
+@export_range(0, 1000) var aggression: int = 560
 @export_range(0, 100) var trust: int = 0
 @export_range(0, 100) var fear: int = 0
 @export_group("Movement")
 @export var approach_speed: float = 65.0
 @export var eating_distance: float = 62.0
 @export var grass_notice_radius: float = 560.0
+@export_group("Combat")
+@export var attack_speed: float = 110.0
+@export var retreat_speed: float = 95.0
+@export var attack_distance: float = 82.0
+@export var attack_damage: int = 25
+@export var retreat_duration: float = 1.0
 @export_group("Poison")
 @export var poison_tick_damage: int = 5
 
 var target_grass: Grass
 var is_poisoned := false
 var is_dead := false
+var retreat_time_remaining := 0.0
 
 
 func _ready() -> void:
@@ -24,7 +31,7 @@ func _ready() -> void:
 	_update_debug_stats()
 
 
-func _physics_process(_delta: float) -> void:
+func _physics_process(delta: float) -> void:
 	if is_dead:
 		velocity = Vector2.ZERO
 		return
@@ -33,6 +40,8 @@ func _physics_process(_delta: float) -> void:
 		target_grass = _find_closest_offered_grass()
 
 	if not is_instance_valid(target_grass):
+		if _process_player_attack(delta):
+			return
 		velocity = Vector2.ZERO
 		return
 
@@ -45,6 +54,35 @@ func _physics_process(_delta: float) -> void:
 
 	velocity = global_position.direction_to(target_grass.global_position) * approach_speed
 	move_and_slide()
+
+
+func _process_player_attack(delta: float) -> bool:
+	var players := get_tree().get_nodes_in_group("player")
+	if players.is_empty():
+		retreat_time_remaining = 0.0
+		return false
+
+	var player := players[0] as CharacterBody2D
+	var distance_to_player := global_position.distance_to(player.global_position)
+	if distance_to_player > float(aggression):
+		retreat_time_remaining = 0.0
+		return false
+
+	if retreat_time_remaining > 0.0:
+		retreat_time_remaining = maxf(retreat_time_remaining - delta, 0.0)
+		velocity = player.global_position.direction_to(global_position) * retreat_speed
+		move_and_slide()
+		return true
+
+	if distance_to_player <= attack_distance:
+		player.change_vitality(attack_damage, false)
+		retreat_time_remaining = retreat_duration
+		velocity = player.global_position.direction_to(global_position) * retreat_speed
+	else:
+		velocity = global_position.direction_to(player.global_position) * attack_speed
+
+	move_and_slide()
+	return true
 
 
 func eat_grass(grass: Grass) -> void:
