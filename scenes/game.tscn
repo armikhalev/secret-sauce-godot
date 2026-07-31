@@ -6,7 +6,7 @@
 [ext_resource type="PackedScene" path="res://scenes/lew.tscn" id="4_lew"]
 [ext_resource type="PackedScene" path="res://scenes/inventory_menu.tscn" id="5_inventory"]
 [ext_resource type="PackedScene" path="res://scenes/wo.tscn" id="6_wo"]
-[ext_resource type="Script" uid="uid://b27lragg41su5" path="res://scripts/wo_population.gd" id="7_population"]
+[ext_resource type="Script" path="res://scripts/wo_population.gd" id="7_population"]
 [ext_resource type="Script" uid="uid://bxwikgn16ovg3" path="res://scripts/lew_population.gd" id="8_lew_population"]
 
 [node name="Game" type="Node2D" unique_id=425893322]
@@ -54,6 +54,9 @@ position = Vector2(-580, -301)
 
 [node name="Wo" parent="World/Entities/NPCs" unique_id=1561409020 instance=ExtResource("6_wo")]
 position = Vector2(-260, 180)
+
+[node name="Wo2" parent="World/Entities/NPCs" instance=ExtResource("6_wo")]
+position = Vector2(260, 180)
 
 [node name="Player" parent="World/Entities" unique_id=873471165 instance=ExtResource("1_player")]
 

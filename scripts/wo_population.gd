@@ -8,6 +8,8 @@ extends Node
 
 var spawn_timer: Timer
 var random := RandomNumberGenerator.new()
+var saykwastes_was_alive := false
+var post_death_spawns_remaining := 0
 
 
 func _ready() -> void:
@@ -26,11 +28,17 @@ func _process(_delta: float) -> void:
 
 func _update_population_state() -> void:
 	if _has_living_saykwastes():
+		saykwastes_was_alive = true
+		post_death_spawns_remaining = 0
 		if not spawn_timer.is_stopped():
 			spawn_timer.stop()
 		_enforce_living_limit()
-	elif _count_wo() < dead_saykwastes_limit and spawn_timer.is_stopped():
-		spawn_timer.start()
+	else:
+		if saykwastes_was_alive:
+			saykwastes_was_alive = false
+			post_death_spawns_remaining = maxi(dead_saykwastes_limit - _count_wo(), 0)
+		if post_death_spawns_remaining > 0 and spawn_timer.is_stopped():
+			spawn_timer.start()
 
 
 func _enforce_living_limit() -> void:
@@ -38,10 +46,6 @@ func _enforce_living_limit() -> void:
 		return
 
 	var wo_nodes := get_tree().get_nodes_in_group("wo")
-	while wo_nodes.size() < living_saykwastes_limit:
-		_spawn_wo()
-		wo_nodes = get_tree().get_nodes_in_group("wo")
-
 	while wo_nodes.size() > living_saykwastes_limit:
 		var extra_wo := wo_nodes.pop_back() as Node
 		extra_wo.queue_free()
@@ -52,10 +56,11 @@ func _on_spawn_timer_timeout() -> void:
 		spawn_timer.stop()
 		return
 
-	if _count_wo() < dead_saykwastes_limit:
+	if post_death_spawns_remaining > 0:
 		_spawn_wo()
+		post_death_spawns_remaining -= 1
 
-	if _count_wo() >= dead_saykwastes_limit:
+	if post_death_spawns_remaining <= 0:
 		spawn_timer.stop()
 
 

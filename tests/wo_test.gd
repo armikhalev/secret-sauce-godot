@@ -18,7 +18,7 @@ func _run() -> void:
 
 	var expected_stats := {
 		"bravery": 0,
-		"vitality": 1,
+		"vitality": 100,
 		"hunger": 100,
 		"aggression": 0,
 		"trust": 0,

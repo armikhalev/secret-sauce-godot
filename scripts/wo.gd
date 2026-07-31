@@ -4,7 +4,7 @@ extends CharacterBody2D
 @export_multiline var creature_note := "A small, rabbit-like creature."
 @export_group("Stats")
 @export_range(0, 100) var bravery: int = 0
-@export_range(0, 100) var vitality: int = 1
+@export_range(0, 100) var vitality: int = 100
 @export_range(0, 100) var hunger: int = 100
 @export_range(0, 100) var aggression: int = 0
 @export_range(0, 100) var trust: int = 0
@@ -21,6 +21,9 @@ var hop_time_remaining := 0.0
 var rest_time_remaining := 0.0
 var hop_direction := Vector2.ZERO
 var random := RandomNumberGenerator.new()
+var hunger_second_elapsed := 0.0
+var vitality_tick_elapsed := 0.0
+var is_dead := false
 
 
 func _ready() -> void:
@@ -31,6 +34,14 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	_process_metabolism(delta)
+	if is_dead:
+		return
+
+	if hunger <= 0:
+		velocity = Vector2.ZERO
+		return
+
 	if not is_instance_valid(target_lew):
 		target_lew = _find_closest_lew()
 
@@ -55,6 +66,8 @@ func _physics_process(delta: float) -> void:
 
 func eat_lew(lew: Lew) -> void:
 	hunger = clampi(hunger - 25, 0, 100)
+	vitality = 100
+	vitality_tick_elapsed = 0.0
 	if lew.state == LewData.State.POISONOUS:
 		vitality = clampi(vitality - 25, 0, 100)
 	elif lew.state == LewData.State.TASTY and is_instance_valid(lew.offered_by):
@@ -62,6 +75,62 @@ func eat_lew(lew: Lew) -> void:
 
 	_update_debug_stats()
 	lew.remove_from_world()
+
+
+func _process_metabolism(delta: float) -> void:
+	hunger_second_elapsed += delta
+	while hunger_second_elapsed >= 1.0:
+		hunger_second_elapsed -= 1.0
+		_apply_hunger_second()
+
+	var vitality_interval := _get_vitality_tick_interval()
+	if is_inf(vitality_interval):
+		vitality_tick_elapsed = 0.0
+		return
+
+	vitality_tick_elapsed += delta
+	while vitality_tick_elapsed >= vitality_interval:
+		vitality_tick_elapsed -= vitality_interval
+		_apply_vitality_tick()
+		if is_dead:
+			return
+
+
+func _apply_hunger_second() -> void:
+	if is_dead:
+		return
+	hunger = clampi(hunger + 1, 0, 100)
+	_update_debug_stats()
+
+
+func _apply_vitality_tick() -> void:
+	if is_dead:
+		return
+	vitality = clampi(vitality - 1, 0, 100)
+	_update_debug_stats()
+	if vitality <= 0:
+		_die()
+
+
+func _get_vitality_tick_interval() -> float:
+	if hunger >= 100:
+		return 1.0
+	if hunger >= 75:
+		return 2.0
+	if hunger >= 50:
+		return 3.0
+	if hunger >= 25:
+		return 4.0
+	return INF
+
+
+func _die() -> void:
+	if is_dead:
+		return
+	is_dead = true
+	velocity = Vector2.ZERO
+	remove_from_group("wo")
+	queue_free()
 
 
 func _start_hop() -> void:
