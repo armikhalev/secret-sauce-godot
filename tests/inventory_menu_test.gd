@@ -13,6 +13,7 @@ func _run() -> void:
 
 	var player = game.get_node("World/Entities/Player")
 	var menu = game.get_node("UI/InventoryMenu")
+	game.get_node("World/Entities/NPCs/Wo").queue_free()
 	game.get_node("World/Items/Lew").queue_free()
 	var item := LewData.new()
 	player.collect_lew(item)
@@ -45,6 +46,7 @@ func _run() -> void:
 		return
 
 	var saykwastes = game.get_node("World/Entities/NPCs/Saykwastes")
+	saykwastes.global_position = Vector2(260, 0)
 	player.global_position = Vector2(150, 0)
 	player.rotation = PI / 2.0
 	menu._drop_selected_item()

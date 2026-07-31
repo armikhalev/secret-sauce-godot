@@ -7,6 +7,7 @@ var offered_by: Node
 
 
 func _ready() -> void:
+	add_to_group("lew")
 	body_entered.connect(_on_body_entered)
 	_update_appearance()
 

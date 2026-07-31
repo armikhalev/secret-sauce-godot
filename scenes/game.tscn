@@ -5,6 +5,7 @@
 [ext_resource type="PackedScene" path="res://scenes/saykwastes.tscn" id="3_saykwastes"]
 [ext_resource type="PackedScene" path="res://scenes/lew.tscn" id="4_lew"]
 [ext_resource type="PackedScene" path="res://scenes/inventory_menu.tscn" id="5_inventory"]
+[ext_resource type="PackedScene" path="res://scenes/wo.tscn" id="6_wo"]
 
 [node name="Game" type="Node2D" unique_id=425893322]
 
@@ -45,6 +46,9 @@ position = Vector2(557, 300)
 
 [node name="Saykwastes" parent="World/Entities/NPCs" unique_id=609269461 instance=ExtResource("3_saykwastes")]
 position = Vector2(-580, -301)
+
+[node name="Wo" parent="World/Entities/NPCs" instance=ExtResource("6_wo")]
+position = Vector2(-260, 180)
 
 [node name="Lew" parent="World/Entities/NPCs" unique_id=1585722271 instance=ExtResource("4_lew")]
 position = Vector2(597, -321)
