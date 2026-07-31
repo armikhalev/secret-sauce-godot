@@ -1,7 +1,7 @@
 extends CharacterBody2D
 
 signal stats_changed(bravery: int, vitality: int, energy: int)
-signal grass_inventory_changed
+signal lew_inventory_changed
 
 @export var move_speed: float = 260.0
 @export_group("Stats")
@@ -9,7 +9,7 @@ signal grass_inventory_changed
 @export_range(0, 100) var vitality: int = 100
 @export_range(0, 100) var energy: int = 100
 
-var grass_inventory: Array[GrassData] = []
+var lew_inventory: Array[LewData] = []
 
 
 func _ready() -> void:
@@ -47,29 +47,29 @@ func change_energy(amount: int, direction: bool) -> void:
 	stats_changed.emit(bravery, vitality, energy)
 
 
-func collect_grass(item: GrassData) -> void:
-	grass_inventory.append(item)
-	grass_inventory_changed.emit()
+func collect_lew(item: LewData) -> void:
+	lew_inventory.append(item)
+	lew_inventory_changed.emit()
 
 
-func set_grass_state(inventory_index: int, state: GrassData.State) -> bool:
-	if inventory_index < 0 or inventory_index >= grass_inventory.size():
+func set_lew_state(inventory_index: int, state: LewData.State) -> bool:
+	if inventory_index < 0 or inventory_index >= lew_inventory.size():
 		return false
 
-	grass_inventory[inventory_index].state = state
-	grass_inventory_changed.emit()
+	lew_inventory[inventory_index].state = state
+	lew_inventory_changed.emit()
 	return true
 
 
-func drop_grass(inventory_index: int, drop_position: Vector2) -> Grass:
-	if inventory_index < 0 or inventory_index >= grass_inventory.size():
+func drop_lew(inventory_index: int, drop_position: Vector2) -> Lew:
+	if inventory_index < 0 or inventory_index >= lew_inventory.size():
 		return null
 
-	var item: GrassData = grass_inventory.pop_at(inventory_index)
-	grass_inventory_changed.emit()
-	var grass := preload("res://scenes/grass.tscn").instantiate() as Grass
-	grass.state = item.state
-	grass.global_position = drop_position
-	get_tree().current_scene.add_child(grass)
-	grass.offer_to_npcs()
-	return grass
+	var item: LewData = lew_inventory.pop_at(inventory_index)
+	lew_inventory_changed.emit()
+	var lew := preload("res://scenes/lew.tscn").instantiate() as Lew
+	lew.state = item.state
+	lew.global_position = drop_position
+	get_tree().current_scene.add_child(lew)
+	lew.offer_to_npcs()
+	return lew

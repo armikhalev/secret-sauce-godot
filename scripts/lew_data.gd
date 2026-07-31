@@ -1,4 +1,4 @@
-class_name GrassData
+class_name LewData
 extends Resource
 
 enum State {

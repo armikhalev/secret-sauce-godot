@@ -11,11 +11,11 @@ func _run() -> void:
 	current_scene = world
 
 	var saykwastes := (load("res://scenes/saykwastes.tscn") as PackedScene).instantiate()
-	var poison := (load("res://scenes/grass.tscn") as PackedScene).instantiate() as Grass
+	var poison := (load("res://scenes/lew.tscn") as PackedScene).instantiate() as Lew
 	world.add_child(saykwastes)
-	poison.state = GrassData.State.POISONOUS
+	poison.state = LewData.State.POISONOUS
 	world.add_child(poison)
-	saykwastes.eat_grass(poison)
+	saykwastes.eat_lew(poison)
 
 	if saykwastes.vitality != 75 or not saykwastes.is_poisoned:
 		push_error("Poisoning did not start correctly.")

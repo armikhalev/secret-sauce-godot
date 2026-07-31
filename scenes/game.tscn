@@ -3,7 +3,7 @@
 [ext_resource type="PackedScene" path="res://scenes/player.tscn" id="1_player"]
 [ext_resource type="Script" path="res://scripts/world_grid.gd" id="2_grid"]
 [ext_resource type="PackedScene" path="res://scenes/saykwastes.tscn" id="3_saykwastes"]
-[ext_resource type="PackedScene" path="res://scenes/grass.tscn" id="4_grass"]
+[ext_resource type="PackedScene" path="res://scenes/lew.tscn" id="4_lew"]
 [ext_resource type="PackedScene" path="res://scenes/inventory_menu.tscn" id="5_inventory"]
 
 [node name="Game" type="Node2D"]
@@ -44,7 +44,7 @@ position = Vector2(260, 0)
 
 [node name="Items" type="Node2D" parent="World"]
 
-[node name="Lew" parent="World/Items" instance=ExtResource("4_grass")]
+[node name="Lew" parent="World/Items" instance=ExtResource("4_lew")]
 position = Vector2(120, 0)
 
 [node name="UI" type="CanvasLayer" parent="."]

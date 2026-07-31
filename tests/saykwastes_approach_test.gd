@@ -11,34 +11,34 @@ func _run() -> void:
 	current_scene = world
 
 	var saykwastes := (load("res://scenes/saykwastes.tscn") as PackedScene).instantiate()
-	var grass := (load("res://scenes/grass.tscn") as PackedScene).instantiate() as Grass
+	var lew := (load("res://scenes/lew.tscn") as PackedScene).instantiate() as Lew
 	world.add_child(saykwastes)
-	grass.position = Vector2(600, 0)
-	grass.state = GrassData.State.TASTY
-	world.add_child(grass)
-	grass.offer_to_npcs()
+	lew.position = Vector2(600, 0)
+	lew.state = LewData.State.TASTY
+	world.add_child(lew)
+	lew.offer_to_npcs()
 	await physics_frame
 	await physics_frame
 
 	if not saykwastes.position.is_equal_approx(Vector2.ZERO):
-		push_error("Saykwastes noticed grass outside its detection radius.")
+		push_error("Saykwastes noticed lew outside its detection radius.")
 		quit(1)
 		return
 
-	grass.position = Vector2(550, 0)
+	lew.position = Vector2(550, 0)
 
 	for frame in 540:
 		await physics_frame
-		if not is_instance_valid(grass):
+		if not is_instance_valid(lew):
 			break
 
 	if saykwastes.position.x <= 0.0:
-		push_error("Saykwastes did not approach dropped grass.")
+		push_error("Saykwastes did not approach dropped lew.")
 		quit(1)
 		return
 
-	if is_instance_valid(grass) or saykwastes.trust != 25:
-		push_error("Saykwastes did not eat tasty grass after approaching it.")
+	if is_instance_valid(lew) or saykwastes.trust != 25:
+		push_error("Saykwastes did not eat tasty lew after approaching it.")
 		quit(1)
 		return
 

@@ -14,8 +14,8 @@ func _run() -> void:
 	var player = game.get_node("World/Entities/Player")
 	var menu = game.get_node("UI/InventoryMenu")
 	game.get_node("World/Items/Lew").queue_free()
-	var item := GrassData.new()
-	player.collect_grass(item)
+	var item := LewData.new()
+	player.collect_lew(item)
 	menu.set_menu_open(true)
 
 	if not menu.visible:
@@ -39,8 +39,8 @@ func _run() -> void:
 		return
 
 	menu._change_selected_state(-1)
-	if player.grass_inventory[0].state != GrassData.State.TASTY:
-		push_error("Inventory navigation did not change the grass state.")
+	if player.lew_inventory[0].state != LewData.State.TASTY:
+		push_error("Inventory navigation did not change the lew state.")
 		quit(1)
 		return
 
@@ -51,10 +51,10 @@ func _run() -> void:
 	await physics_frame
 	await physics_frame
 
-	if not player.grass_inventory.is_empty() or saykwastes.trust != 25:
+	if not player.lew_inventory.is_empty() or saykwastes.trust != 25:
 		push_error(
-			"Dropped tasty grass failed: inventory=%d trust=%d"
-			% [player.grass_inventory.size(), saykwastes.trust]
+			"Dropped tasty lew failed: inventory=%d trust=%d"
+			% [player.lew_inventory.size(), saykwastes.trust]
 		)
 		quit(1)
 		return
@@ -65,5 +65,5 @@ func _run() -> void:
 		quit(1)
 		return
 
-	print("Grass inventory menu verified.")
+	print("Lew inventory menu verified.")
 	quit()

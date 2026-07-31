@@ -13,7 +13,7 @@ var selected_item_index := 0
 
 func _ready() -> void:
 	player = get_node(player_path) as CharacterBody2D
-	player.grass_inventory_changed.connect(_on_inventory_changed)
+	player.lew_inventory_changed.connect(_on_inventory_changed)
 	player.stats_changed.connect(_on_player_stats_changed)
 	_update_player_stats()
 	hide()
@@ -56,9 +56,9 @@ func rebuild_item_list() -> void:
 	for child in item_list.get_children():
 		child.queue_free()
 
-	empty_label.visible = player.grass_inventory.is_empty()
+	empty_label.visible = player.lew_inventory.is_empty()
 
-	for index in player.grass_inventory.size():
+	for index in player.lew_inventory.size():
 		var row := HBoxContainer.new()
 		var item_label := Label.new()
 		var state_selector := OptionButton.new()
@@ -66,10 +66,10 @@ func rebuild_item_list() -> void:
 		item_label.text = "Lew %d" % (index + 1)
 		item_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
-		state_selector.add_item("Plain", GrassData.State.PLAIN)
-		state_selector.add_item("Poisonous", GrassData.State.POISONOUS)
-		state_selector.add_item("Tasty", GrassData.State.TASTY)
-		state_selector.select(player.grass_inventory[index].state)
+		state_selector.add_item("Plain", LewData.State.PLAIN)
+		state_selector.add_item("Poisonous", LewData.State.POISONOUS)
+		state_selector.add_item("Tasty", LewData.State.TASTY)
+		state_selector.select(player.lew_inventory[index].state)
 		state_selector.focus_mode = Control.FOCUS_NONE
 		state_selector.item_selected.connect(_on_state_selected.bind(index))
 
@@ -83,11 +83,11 @@ func rebuild_item_list() -> void:
 
 
 func _on_state_selected(selected_index: int, inventory_index: int) -> void:
-	player.set_grass_state(inventory_index, selected_index as GrassData.State)
+	player.set_lew_state(inventory_index, selected_index as LewData.State)
 
 
 func _on_inventory_changed() -> void:
-	if visible and state_selectors.size() != player.grass_inventory.size():
+	if visible and state_selectors.size() != player.lew_inventory.size():
 		rebuild_item_list()
 
 
@@ -122,18 +122,18 @@ func _change_selected_state(direction: int) -> void:
 	var state_count := selector.item_count
 	var new_state := posmod(selector.selected + direction, state_count)
 	selector.select(new_state)
-	player.set_grass_state(selected_item_index, new_state as GrassData.State)
+	player.set_lew_state(selected_item_index, new_state as LewData.State)
 
 
 func _drop_selected_item() -> void:
-	if player.grass_inventory.is_empty():
+	if player.lew_inventory.is_empty():
 		return
 
 	var forward := Vector2.UP.rotated(player.rotation)
 	var drop_position := player.global_position + forward * 96.0
-	player.drop_grass(selected_item_index, drop_position)
+	player.drop_lew(selected_item_index, drop_position)
 
-	if player.grass_inventory.is_empty():
+	if player.lew_inventory.is_empty():
 		selected_item_index = 0
 	else:
-		selected_item_index = mini(selected_item_index, player.grass_inventory.size() - 1)
+		selected_item_index = mini(selected_item_index, player.lew_inventory.size() - 1)

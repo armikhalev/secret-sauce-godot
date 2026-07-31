@@ -1,7 +1,7 @@
-class_name Grass
+class_name Lew
 extends Area2D
 
-@export var state: GrassData.State = GrassData.State.PLAIN
+@export var state: LewData.State = LewData.State.PLAIN
 var offered_to_npcs := false
 
 
@@ -10,13 +10,13 @@ func _ready() -> void:
 	_update_appearance()
 
 
-func set_state(new_state: GrassData.State) -> void:
+func set_state(new_state: LewData.State) -> void:
 	state = new_state
 	_update_appearance()
 
 
-func get_item_data() -> GrassData:
-	var item := GrassData.new()
+func get_item_data() -> LewData:
+	var item := LewData.new()
 	item.state = state
 	return item
 
@@ -27,8 +27,8 @@ func offer_to_npcs() -> void:
 
 
 func _on_body_entered(body: Node2D) -> void:
-	if body.has_method("collect_grass"):
-		body.collect_grass(get_item_data())
+	if body.has_method("collect_lew"):
+		body.collect_lew(get_item_data())
 		queue_free()
 
 
@@ -38,9 +38,9 @@ func _update_appearance() -> void:
 
 	var body := get_node("Body") as Polygon2D
 	match state:
-		GrassData.State.POISONOUS:
+		LewData.State.POISONOUS:
 			body.color = Color(0.55, 0.25, 0.68, 1.0)
-		GrassData.State.TASTY:
+		LewData.State.TASTY:
 			body.color = Color(0.45, 0.82, 0.28, 1.0)
 		_:
 			body.color = Color(0.25, 0.65, 0.24, 1.0)
