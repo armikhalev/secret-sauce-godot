@@ -55,7 +55,12 @@ func _run() -> void:
 		quit(1)
 		return
 
-	if "AGR 560" not in saykwastes.get_node("DebugStats").text:
+	if "AGR 50" not in saykwastes.get_node("DebugStats").text:
+		push_error("Debug stats do not show player aggression.")
+		quit(1)
+		return
+
+	if "RAD 560" not in saykwastes.get_node("DebugStats").text:
 		push_error("Debug stats do not show the aggression radius.")
 		quit(1)
 		return

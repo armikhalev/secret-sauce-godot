@@ -9,7 +9,7 @@ func _initialize() -> void:
 		"bravery": 0,
 		"vitality": 100,
 		"hunger": 0,
-		"aggression": 560,
+		"aggression": 50,
 		"trust": 0,
 		"fear": 0,
 	}

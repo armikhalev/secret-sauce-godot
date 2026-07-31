@@ -37,11 +37,20 @@ polygon = PackedVector2Array(0, -55, 50, 35, -50, 35)
 
 [node name="NPCs" type="Node2D" parent="World/Entities" unique_id=1316004676]
 
+[node name="Lew4" parent="World/Entities/NPCs" unique_id=1727879407 instance=ExtResource("4_lew")]
+position = Vector2(-275, -283)
+
+[node name="Lew3" parent="World/Entities/NPCs" unique_id=715424137 instance=ExtResource("4_lew")]
+position = Vector2(557, 300)
+
 [node name="Saykwastes" parent="World/Entities/NPCs" unique_id=609269461 instance=ExtResource("3_saykwastes")]
-position = Vector2(-535, -94)
+position = Vector2(-580, -301)
 
 [node name="Lew" parent="World/Entities/NPCs" unique_id=1585722271 instance=ExtResource("4_lew")]
 position = Vector2(597, -321)
+
+[node name="Lew1" parent="World/Entities/NPCs" unique_id=1321313446 instance=ExtResource("4_lew")]
+position = Vector2(-539, -90)
 
 [node name="Lew2" parent="World/Entities/NPCs" unique_id=1731275099 instance=ExtResource("4_lew")]
 position = Vector2(-558, 255)
@@ -71,12 +80,3 @@ text = "SECRET SAUCE
 
 [node name="InventoryMenu" parent="UI" unique_id=1816078503 instance=ExtResource("5_inventory")]
 player_path = NodePath("../../World/Entities/Player")
-
-[node name="Lew" parent="." unique_id=1321313446 instance=ExtResource("4_lew")]
-position = Vector2(-521, -269)
-
-[node name="Lew2" parent="." unique_id=1727879407 instance=ExtResource("4_lew")]
-position = Vector2(-275, -283)
-
-[node name="Lew3" parent="." unique_id=715424137 instance=ExtResource("4_lew")]
-position = Vector2(557, 300)

@@ -4,13 +4,14 @@ extends CharacterBody2D
 @export_range(0, 100) var bravery: int = 0
 @export_range(0, 100) var vitality: int = 100
 @export_range(0, 100) var hunger: int = 0
-@export_range(0, 1000) var aggression: int = 560
+@export_range(0, 100) var aggression: int = 50
 @export_range(0, 1000) var trust: int = 0
 @export_range(0, 100) var fear: int = 0
 @export_group("Movement")
 @export var approach_speed: float = 65.0
 @export var eating_distance: float = 62.0
 @export var lew_notice_radius: float = 560.0
+@export var aggression_radius: float = 560.0
 @export_group("Combat")
 @export var attack_speed: float = 110.0
 @export var retreat_speed: float = 95.0
@@ -74,13 +75,13 @@ func _process_player_attack(delta: float) -> bool:
 	aggression = player_aggression
 	_update_debug_stats()
 
-	if player_trust >= player_aggression:
+	if player_trust > player_aggression:
 		retreat_time_remaining = 0.0
 		attack_cooldown_remaining = 0.0
 		return false
 
 	var distance_to_player := global_position.distance_to(player.global_position)
-	if distance_to_player > float(player_aggression):
+	if distance_to_player > aggression_radius:
 		retreat_time_remaining = 0.0
 		attack_cooldown_remaining = 0.0
 		return false
@@ -222,6 +223,6 @@ func _find_closest_offered_lew() -> Lew:
 
 func _update_debug_stats() -> void:
 	$DebugStats.text = (
-		"BRV %d  VIT %d  HNG %d\nAGR %d  TRS %d  FER %d"
-		% [bravery, vitality, hunger, aggression, trust, fear]
+		"BRV %d  VIT %d  HNG %d\nAGR %d  TRS %d  FER %d  RAD %d"
+		% [bravery, vitality, hunger, aggression, trust, fear, roundi(aggression_radius)]
 	)
