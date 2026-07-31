@@ -4,6 +4,7 @@ extends Control
 
 @onready var item_list: VBoxContainer = %ItemList
 @onready var empty_label: Label = %EmptyLabel
+@onready var player_stats_label: Label = %PlayerStats
 
 var player: CharacterBody2D
 var state_selectors: Array[OptionButton] = []
@@ -13,6 +14,8 @@ var selected_item_index := 0
 func _ready() -> void:
 	player = get_node(player_path) as CharacterBody2D
 	player.grass_inventory_changed.connect(_on_inventory_changed)
+	player.stats_changed.connect(_on_player_stats_changed)
+	_update_player_stats()
 	hide()
 
 
@@ -45,6 +48,7 @@ func set_menu_open(open: bool) -> void:
 
 	if open:
 		rebuild_item_list()
+		_update_player_stats()
 
 
 func rebuild_item_list() -> void:
@@ -85,6 +89,17 @@ func _on_state_selected(selected_index: int, inventory_index: int) -> void:
 func _on_inventory_changed() -> void:
 	if visible and state_selectors.size() != player.grass_inventory.size():
 		rebuild_item_list()
+
+
+func _on_player_stats_changed(_bravery: int, _vitality: int, _energy: int) -> void:
+	_update_player_stats()
+
+
+func _update_player_stats() -> void:
+	player_stats_label.text = (
+		"BRAVERY\n%d / 100\n\nVITALITY\n%d / 100\n\nENERGY\n%d / 100"
+		% [player.bravery, player.vitality, player.energy]
+	)
 
 
 func _select_item(index: int) -> void:

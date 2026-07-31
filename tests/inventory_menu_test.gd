@@ -23,6 +23,12 @@ func _run() -> void:
 		quit(1)
 		return
 
+	player.change_vitality(25, false)
+	if "75 / 100" not in menu.player_stats_label.text:
+		push_error("Player stats panel did not update.")
+		quit(1)
+		return
+
 	Input.action_press("move_right")
 	await physics_frame
 	await physics_frame
