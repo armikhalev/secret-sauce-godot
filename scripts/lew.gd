@@ -3,6 +3,7 @@ extends Area2D
 
 @export var state: LewData.State = LewData.State.PLAIN
 var offered_to_npcs := false
+var offered_by: Node
 
 
 func _ready() -> void:

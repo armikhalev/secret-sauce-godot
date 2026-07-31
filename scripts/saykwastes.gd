@@ -5,7 +5,7 @@ extends CharacterBody2D
 @export_range(0, 100) var vitality: int = 100
 @export_range(0, 100) var hunger: int = 0
 @export_range(0, 1000) var aggression: int = 560
-@export_range(0, 100) var trust: int = 0
+@export_range(0, 1000) var trust: int = 0
 @export_range(0, 100) var fear: int = 0
 @export_group("Movement")
 @export var approach_speed: float = 65.0
@@ -17,6 +17,7 @@ extends CharacterBody2D
 @export var attack_distance: float = 82.0
 @export var attack_damage: int = 25
 @export var retreat_duration: float = 1.0
+@export var maximum_attack_delay: float = 6.0
 @export_group("Poison")
 @export var poison_tick_damage: int = 5
 
@@ -24,6 +25,9 @@ var target_lew: Lew
 var is_poisoned := false
 var is_dead := false
 var retreat_time_remaining := 0.0
+var attack_cooldown_remaining := 0.0
+var trust_by_target: Dictionary[int, int] = {}
+var aggression_by_target: Dictionary[int, int] = {}
 
 
 func _ready() -> void:
@@ -63,10 +67,25 @@ func _process_player_attack(delta: float) -> bool:
 		return false
 
 	var player := players[0] as CharacterBody2D
-	var distance_to_player := global_position.distance_to(player.global_position)
-	if distance_to_player > float(aggression):
+	_ensure_relationship(player)
+	var player_trust := get_trust_toward(player)
+	var player_aggression := get_aggression_toward(player)
+	trust = player_trust
+	aggression = player_aggression
+	_update_debug_stats()
+
+	if player_trust >= player_aggression:
 		retreat_time_remaining = 0.0
+		attack_cooldown_remaining = 0.0
 		return false
+
+	var distance_to_player := global_position.distance_to(player.global_position)
+	if distance_to_player > float(player_aggression):
+		retreat_time_remaining = 0.0
+		attack_cooldown_remaining = 0.0
+		return false
+
+	attack_cooldown_remaining = maxf(attack_cooldown_remaining - delta, 0.0)
 
 	if retreat_time_remaining > 0.0:
 		retreat_time_remaining = maxf(retreat_time_remaining - delta, 0.0)
@@ -74,9 +93,15 @@ func _process_player_attack(delta: float) -> bool:
 		move_and_slide()
 		return true
 
+	if attack_cooldown_remaining > 0.0:
+		velocity = Vector2.ZERO
+		return true
+
 	if distance_to_player <= attack_distance:
 		player.change_vitality(attack_damage, false)
 		retreat_time_remaining = retreat_duration
+		var trust_ratio := clampf(float(player_trust) / float(player_aggression), 0.0, 1.0)
+		attack_cooldown_remaining = lerpf(retreat_duration, maximum_attack_delay, trust_ratio)
 		velocity = player.global_position.direction_to(global_position) * retreat_speed
 	else:
 		velocity = global_position.direction_to(player.global_position) * attack_speed
@@ -91,13 +116,52 @@ func eat_lew(lew: Lew) -> void:
 			vitality = clampi(vitality - 25, 0, 100)
 			_start_poisoning()
 		LewData.State.TASTY:
-			trust = clampi(trust + 25, 0, 100)
+			if is_instance_valid(lew.offered_by):
+				change_trust_toward(lew.offered_by, 25)
+			else:
+				trust = clampi(trust + 25, 0, 1000)
 
 	if vitality <= 0:
 		_die()
 
 	_update_debug_stats()
 	lew.queue_free()
+
+
+func get_trust_toward(target: Node) -> int:
+	_ensure_relationship(target)
+	return trust_by_target[target.get_instance_id()]
+
+
+func get_aggression_toward(target: Node) -> int:
+	_ensure_relationship(target)
+	return aggression_by_target[target.get_instance_id()]
+
+
+func change_trust_toward(target: Node, amount: int) -> void:
+	_ensure_relationship(target)
+	var target_id := target.get_instance_id()
+	trust_by_target[target_id] = maxi(trust_by_target[target_id] + amount, 0)
+	if target.is_in_group("player"):
+		trust = trust_by_target[target_id]
+		_update_debug_stats()
+
+
+func set_aggression_toward(target: Node, amount: int) -> void:
+	_ensure_relationship(target)
+	var target_id := target.get_instance_id()
+	aggression_by_target[target_id] = maxi(amount, 0)
+	if target.is_in_group("player"):
+		aggression = aggression_by_target[target_id]
+		_update_debug_stats()
+
+
+func _ensure_relationship(target: Node) -> void:
+	var target_id := target.get_instance_id()
+	if not trust_by_target.has(target_id):
+		trust_by_target[target_id] = trust if target.is_in_group("player") else 0
+	if not aggression_by_target.has(target_id):
+		aggression_by_target[target_id] = aggression if target.is_in_group("player") else 0
 
 
 func receive_push(push_motion: Vector2) -> void:

@@ -69,6 +69,7 @@ func drop_lew(inventory_index: int, drop_position: Vector2) -> Lew:
 	lew_inventory_changed.emit()
 	var lew := preload("res://scenes/lew.tscn").instantiate() as Lew
 	lew.state = item.state
+	lew.offered_by = self
 	lew.global_position = drop_position
 	get_tree().current_scene.add_child(lew)
 	lew.offer_to_npcs()

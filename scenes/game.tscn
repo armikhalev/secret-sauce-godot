@@ -1,65 +1,82 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene format=3 uid="uid://2xg0ea821tcx"]
 
 [ext_resource type="PackedScene" path="res://scenes/player.tscn" id="1_player"]
-[ext_resource type="Script" path="res://scripts/world_grid.gd" id="2_grid"]
+[ext_resource type="Script" uid="uid://bkkk78ve2sym1" path="res://scripts/world_grid.gd" id="2_grid"]
 [ext_resource type="PackedScene" path="res://scenes/saykwastes.tscn" id="3_saykwastes"]
 [ext_resource type="PackedScene" path="res://scenes/lew.tscn" id="4_lew"]
 [ext_resource type="PackedScene" path="res://scenes/inventory_menu.tscn" id="5_inventory"]
 
-[node name="Game" type="Node2D"]
+[node name="Game" type="Node2D" unique_id=425893322]
 
-[node name="World" type="Node2D" parent="."]
+[node name="World" type="Node2D" parent="." unique_id=398859474]
 
-[node name="Ground" type="Polygon2D" parent="World"]
-polygon = PackedVector2Array(-1600, -1000, 1600, -1000, 1600, 1000, -1600, 1000)
+[node name="Ground" type="Polygon2D" parent="World" unique_id=931751124]
 color = Color(0.16, 0.27, 0.22, 1)
+polygon = PackedVector2Array(-1600, -1000, 1600, -1000, 1600, 1000, -1600, 1000)
 
-[node name="WorldGrid" type="Node2D" parent="World"]
+[node name="WorldGrid" type="Node2D" parent="World" unique_id=1993114793]
 script = ExtResource("2_grid")
 
-[node name="Environment" type="Node2D" parent="World"]
+[node name="Environment" type="Node2D" parent="World" unique_id=1374464244]
 
-[node name="Props" type="Node2D" parent="World/Environment"]
+[node name="Props" type="Node2D" parent="World/Environment" unique_id=1386485336]
 
-[node name="LandmarkNorthEast" type="Polygon2D" parent="World/Environment/Props"]
+[node name="LandmarkNorthEast" type="Polygon2D" parent="World/Environment/Props" unique_id=20968637]
 position = Vector2(420, -240)
-polygon = PackedVector2Array(-42, -42, 42, -42, 42, 42, -42, 42)
 color = Color(0.82, 0.34, 0.2, 1)
+polygon = PackedVector2Array(-42, -42, 42, -42, 42, 42, -42, 42)
 
-[node name="LandmarkSouthWest" type="Polygon2D" parent="World/Environment/Props"]
+[node name="LandmarkSouthWest" type="Polygon2D" parent="World/Environment/Props" unique_id=669095498]
 position = Vector2(-480, 300)
-polygon = PackedVector2Array(0, -55, 50, 35, -50, 35)
 color = Color(0.92, 0.72, 0.25, 1)
+polygon = PackedVector2Array(0, -55, 50, 35, -50, 35)
 
-[node name="Obstacles" type="Node2D" parent="World/Environment"]
+[node name="Obstacles" type="Node2D" parent="World/Environment" unique_id=1442361497]
 
-[node name="Entities" type="Node2D" parent="World"]
+[node name="Entities" type="Node2D" parent="World" unique_id=2135979000]
 
-[node name="NPCs" type="Node2D" parent="World/Entities"]
+[node name="NPCs" type="Node2D" parent="World/Entities" unique_id=1316004676]
 
-[node name="Saykwastes" parent="World/Entities/NPCs" instance=ExtResource("3_saykwastes")]
-position = Vector2(260, 0)
+[node name="Saykwastes" parent="World/Entities/NPCs" unique_id=609269461 instance=ExtResource("3_saykwastes")]
+position = Vector2(-535, -94)
 
-[node name="Player" parent="World/Entities" instance=ExtResource("1_player")]
+[node name="Lew" parent="World/Entities/NPCs" unique_id=1585722271 instance=ExtResource("4_lew")]
+position = Vector2(597, -321)
 
-[node name="Items" type="Node2D" parent="World"]
+[node name="Lew2" parent="World/Entities/NPCs" unique_id=1731275099 instance=ExtResource("4_lew")]
+position = Vector2(-558, 255)
 
-[node name="Lew" parent="World/Items" instance=ExtResource("4_lew")]
+[node name="Player" parent="World/Entities" unique_id=873471165 instance=ExtResource("1_player")]
+
+[node name="Items" type="Node2D" parent="World" unique_id=1148796590]
+
+[node name="Lew" parent="World/Items" unique_id=1596011159 instance=ExtResource("4_lew")]
 position = Vector2(120, 0)
 
-[node name="UI" type="CanvasLayer" parent="."]
+[node name="UI" type="CanvasLayer" parent="." unique_id=297256265]
 
-[node name="MarginContainer" type="MarginContainer" parent="UI"]
+[node name="MarginContainer" type="MarginContainer" parent="UI" unique_id=1261447165]
 offset_right = 1280.0
 offset_bottom = 720.0
+mouse_filter = 2
 theme_override_constants/margin_left = 24
 theme_override_constants/margin_top = 20
-mouse_filter = 2
 
-[node name="Title" type="Label" parent="UI/MarginContainer"]
+[node name="Title" type="Label" parent="UI/MarginContainer" unique_id=1120723628]
+layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.91, 0.68, 1)
 theme_override_font_sizes/font_size = 24
-text = "SECRET SAUCE\n[I] Inventory"
+text = "SECRET SAUCE
+[I] Inventory"
 
-[node name="InventoryMenu" parent="UI" instance=ExtResource("5_inventory")]
+[node name="InventoryMenu" parent="UI" unique_id=1816078503 instance=ExtResource("5_inventory")]
 player_path = NodePath("../../World/Entities/Player")
+
+[node name="Lew" parent="." unique_id=1321313446 instance=ExtResource("4_lew")]
+position = Vector2(-521, -269)
+
+[node name="Lew2" parent="." unique_id=1727879407 instance=ExtResource("4_lew")]
+position = Vector2(-275, -283)
+
+[node name="Lew3" parent="." unique_id=715424137 instance=ExtResource("4_lew")]
+position = Vector2(557, 300)
