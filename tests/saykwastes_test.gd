@@ -21,7 +21,7 @@ func _initialize() -> void:
 			quit(1)
 			return
 
-	if saykwastes.get_node("Label").text != "saykwastes":
+	if saykwastes.get_node("Label").text != "say\nkwas\ntes":
 		push_error("Saykwastes label is missing.")
 		saykwastes.free()
 		quit(1)

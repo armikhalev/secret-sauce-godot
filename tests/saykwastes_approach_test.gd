@@ -13,12 +13,21 @@ func _run() -> void:
 	var saykwastes := (load("res://scenes/saykwastes.tscn") as PackedScene).instantiate()
 	var grass := (load("res://scenes/grass.tscn") as PackedScene).instantiate() as Grass
 	world.add_child(saykwastes)
-	grass.position = Vector2(200, 0)
+	grass.position = Vector2(600, 0)
 	grass.state = GrassData.State.TASTY
 	world.add_child(grass)
 	grass.offer_to_npcs()
+	await physics_frame
+	await physics_frame
 
-	for frame in 240:
+	if not saykwastes.position.is_equal_approx(Vector2.ZERO):
+		push_error("Saykwastes noticed grass outside its detection radius.")
+		quit(1)
+		return
+
+	grass.position = Vector2(550, 0)
+
+	for frame in 540:
 		await physics_frame
 		if not is_instance_valid(grass):
 			break

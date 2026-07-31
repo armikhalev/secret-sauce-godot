@@ -9,7 +9,8 @@ extends CharacterBody2D
 @export_range(0, 100) var fear: int = 0
 @export_group("Movement")
 @export var approach_speed: float = 65.0
-@export var eating_distance: float = 42.0
+@export var eating_distance: float = 62.0
+@export var grass_notice_radius: float = 560.0
 @export_group("Poison")
 @export var poison_tick_damage: int = 5
 
@@ -102,17 +103,17 @@ func _die() -> void:
 
 func _find_closest_offered_grass() -> Grass:
 	var closest: Grass
-	var closest_distance := INF
+	var closest_distance_squared := grass_notice_radius * grass_notice_radius
 
 	for node in get_tree().get_nodes_in_group("npc_food"):
 		if not node is Grass:
 			continue
 
 		var grass := node as Grass
-		var distance := global_position.distance_squared_to(grass.global_position)
-		if distance < closest_distance:
+		var distance_squared := global_position.distance_squared_to(grass.global_position)
+		if distance_squared <= closest_distance_squared:
 			closest = grass
-			closest_distance = distance
+			closest_distance_squared = distance_squared
 
 	return closest
 

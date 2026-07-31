@@ -57,7 +57,7 @@ func _run() -> void:
 	var player := (load("res://scenes/player.tscn") as PackedScene).instantiate()
 	world.add_child(player)
 	player.position = Vector2.ZERO
-	saykwastes.position = Vector2(55, 0)
+	saykwastes.position = Vector2(75, 0)
 	var corpse_start_x: float = saykwastes.position.x
 	Input.action_press("move_right")
 	for frame in 20:
