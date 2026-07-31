@@ -73,6 +73,14 @@ func _process_player_attack(delta: float) -> bool:
 	var player_trust := get_trust_toward(player)
 	var player_aggression := get_aggression_toward(player)
 	trust = player_trust
+	if player.is_hidden:
+		aggression = 0
+		retreat_time_remaining = 0.0
+		attack_cooldown_remaining = 0.0
+		velocity = Vector2.ZERO
+		_update_debug_stats()
+		return false
+
 	aggression = player_aggression
 	_update_debug_stats()
 

@@ -10,6 +10,8 @@ signal lew_inventory_changed
 @export_range(0, 100) var energy: int = 100
 
 var lew_inventory: Array[LewData] = []
+var concealment_sources := 0
+var is_hidden := false
 
 
 func _ready() -> void:
@@ -74,3 +76,18 @@ func drop_lew(inventory_index: int, drop_position: Vector2) -> Lew:
 	get_tree().current_scene.add_child(lew)
 	lew.offer_to_npcs()
 	return lew
+
+
+func enter_concealment() -> void:
+	concealment_sources += 1
+	is_hidden = true
+	$Body.modulate.a = 0.45
+	$FacingMarker.modulate.a = 0.45
+
+
+func exit_concealment() -> void:
+	concealment_sources = maxi(concealment_sources - 1, 0)
+	is_hidden = concealment_sources > 0
+	if not is_hidden:
+		$Body.modulate.a = 1.0
+		$FacingMarker.modulate.a = 1.0

@@ -1,0 +1,14 @@
+[gd_scene load_steps=2 format=3]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_bush"]
+radius = 45.0
+
+[node name="Bush" type="StaticBody2D"]
+metadata/obstacle_type = "solid bush"
+
+[node name="Body" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(45, 0, 36, 27, 14, 43, -14, 43, -36, 27, -45, 0, -36, -27, -14, -43, 14, -43, 36, -27)
+color = Color(0.16, 0.47, 0.2, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_bush")

@@ -1,0 +1,30 @@
+[gd_scene format=3 uid="uid://c4ik58oaj415d"]
+
+[ext_resource type="Script" uid="uid://cid2uhy5g608p" path="res://scripts/hiding_bush.gd" id="1_hiding_bush"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_concealment"]
+radius = 47.38143
+
+[node name="HidingBush" type="Area2D" unique_id=1746680998]
+collision_layer = 0
+script = ExtResource("1_hiding_bush")
+metadata/obstacle_type = "concealment bush"
+metadata/concealment_range_in_bush_widths = 5
+
+[node name="Body" type="Polygon2D" parent="." unique_id=2067130818]
+color = Color(0.12, 0.48, 0.48, 1)
+polygon = PackedVector2Array(45, 0, 36, 27, 14, 43, -14, 43, -36, 27, -45, 0, -36, -27, -14, -43, 14, -43, 36, -27)
+
+[node name="Label" type="Label" parent="." unique_id=388463142]
+offset_left = -45.0
+offset_top = -11.0
+offset_right = 45.0
+offset_bottom = 11.0
+theme_override_colors/font_color = Color(0.9, 1, 0.95, 1)
+theme_override_font_sizes/font_size = 14
+text = "paxasay"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ConcealmentArea" type="CollisionShape2D" parent="." unique_id=1117611949]
+shape = SubResource("CircleShape2D_concealment")
