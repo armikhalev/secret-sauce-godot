@@ -13,8 +13,9 @@ extends CharacterBody2D
 @export var lew_notice_radius: float = 560.0
 @export var aggression_radius: float = 560.0
 @export var home_arrival_distance: float = 6.0
+@export var search_arrival_distance: float = 18.0
 @export_group("Combat")
-@export var attack_speed: float = 110.0
+@export var attack_speed: float = 235.0
 @export var retreat_speed: float = 95.0
 @export var attack_distance: float = 82.0
 @export var attack_damage: int = 25
@@ -31,6 +32,10 @@ var attack_cooldown_remaining := 0.0
 var trust_by_target: Dictionary[int, int] = {}
 var aggression_by_target: Dictionary[int, int] = {}
 var home_position := Vector2.ZERO
+var has_seen_player := false
+var last_seen_player_position := Vector2.ZERO
+
+@onready var navigation_agent: NavigationAgent2D = $NavigationAgent2D
 
 
 func _ready() -> void:
@@ -88,6 +93,7 @@ func _process_player_attack(delta: float) -> bool:
 	trust = player_trust
 	if player.is_hidden:
 		aggression = 0
+		has_seen_player = false
 		retreat_time_remaining = 0.0
 		attack_cooldown_remaining = 0.0
 		velocity = Vector2.ZERO
@@ -104,8 +110,20 @@ func _process_player_attack(delta: float) -> bool:
 
 	var distance_to_player := global_position.distance_to(player.global_position)
 	if distance_to_player > aggression_radius:
+		has_seen_player = false
 		retreat_time_remaining = 0.0
 		attack_cooldown_remaining = 0.0
+		return false
+
+	var can_see_player := _has_line_of_sight_to(player)
+	if can_see_player:
+		has_seen_player = true
+		last_seen_player_position = player.global_position
+	elif not has_seen_player:
+		return false
+	elif global_position.distance_to(last_seen_player_position) <= search_arrival_distance:
+		has_seen_player = false
+		velocity = Vector2.ZERO
 		return false
 
 	attack_cooldown_remaining = maxf(attack_cooldown_remaining - delta, 0.0)
@@ -120,17 +138,39 @@ func _process_player_attack(delta: float) -> bool:
 		velocity = Vector2.ZERO
 		return true
 
-	if distance_to_player <= attack_distance:
+	if can_see_player and distance_to_player <= attack_distance:
 		player.change_vitality(attack_damage, false)
 		retreat_time_remaining = retreat_duration
 		var trust_ratio := clampf(float(player_trust) / float(player_aggression), 0.0, 1.0)
 		attack_cooldown_remaining = lerpf(retreat_duration, maximum_attack_delay, trust_ratio)
 		velocity = player.global_position.direction_to(global_position) * retreat_speed
 	else:
-		velocity = global_position.direction_to(player.global_position) * attack_speed
+		var chase_target := player.global_position if can_see_player else last_seen_player_position
+		_move_toward_navigated(chase_target, attack_speed)
+		return true
 
 	move_and_slide()
 	return true
+
+
+func _has_line_of_sight_to(player: CharacterBody2D) -> bool:
+	var query := PhysicsRayQueryParameters2D.create(global_position, player.global_position)
+	query.exclude = [get_rid()]
+	query.collision_mask = collision_mask
+	query.collide_with_areas = false
+	query.collide_with_bodies = true
+	var hit := get_world_2d().direct_space_state.intersect_ray(query)
+	return not hit.is_empty() and hit.get("collider") == player
+
+
+func _move_toward_navigated(target_position: Vector2, speed: float) -> void:
+	navigation_agent.target_position = target_position
+	var map_rid := navigation_agent.get_navigation_map()
+	var next_position := target_position
+	if map_rid.is_valid() and NavigationServer2D.map_get_iteration_id(map_rid) > 0:
+		next_position = navigation_agent.get_next_path_position()
+	velocity = global_position.direction_to(next_position) * speed
+	move_and_slide()
 
 
 func eat_lew(lew: Lew) -> void:

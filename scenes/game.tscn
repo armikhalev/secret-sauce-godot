@@ -13,6 +13,7 @@
 [ext_resource type="PackedScene" path="res://scenes/wall.tscn" id="9_wall"]
 [ext_resource type="PackedScene" path="res://scenes/bush.tscn" id="10_bush"]
 [ext_resource type="PackedScene" uid="uid://c4ik58oaj415d" path="res://scenes/hiding_bush.tscn" id="11_hiding_bush"]
+[ext_resource type="Script" path="res://scripts/world_navigation.gd" id="12_navigation"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_rysoc"]
 texture = ExtResource("4_trtic")
@@ -614,6 +615,9 @@ item_container_path = NodePath("../World/Items")
 spawn_points_path = NodePath("../World/LewSpawnPoints")
 
 [node name="World" type="Node2D" parent="." unique_id=398859474]
+
+[node name="NavigationRegion2D" type="NavigationRegion2D" parent="World"]
+script = ExtResource("12_navigation")
 
 [node name="WorldArt" type="Node2D" parent="World" unique_id=1778365667]
 
