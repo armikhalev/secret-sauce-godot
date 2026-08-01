@@ -19,6 +19,7 @@ var lew_inventory: Array[LewData] = []
 var concealment_sources := 0
 var is_hidden := false
 var is_expanded_perception := false
+var is_dead := false
 
 
 func _ready() -> void:
@@ -27,6 +28,10 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if is_dead:
+		velocity = Vector2.ZERO
+		return
+
 	var direction := Input.get_vector("move_left", "move_right", "move_up", "move_down")
 	velocity = direction * move_speed
 
@@ -43,6 +48,9 @@ func _physics_process(delta: float) -> void:
 
 
 func _process(delta: float) -> void:
+	if is_dead:
+		return
+
 	var zoom_input := Input.get_axis("zoom_out", "zoom_in")
 	if is_zero_approx(zoom_input):
 		return
@@ -51,6 +59,9 @@ func _process(delta: float) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if is_dead:
+		return
+
 	if not event is InputEventMouseButton and not event is InputEventKey:
 		return
 	if not event.is_pressed() or event.is_echo():
@@ -80,8 +91,25 @@ func change_bravery(amount: int, direction: bool) -> void:
 
 
 func change_vitality(amount: int, direction: bool) -> void:
+	if is_dead:
+		return
 	vitality = clampi(vitality + amount, 0, 100) if direction else clampi(vitality - amount, 0, 100)
 	stats_changed.emit(bravery, vitality, energy, awareness)
+	if vitality <= 0:
+		_die()
+
+
+func _die() -> void:
+	if is_dead:
+		return
+	is_dead = true
+	velocity = Vector2.ZERO
+	set_physics_process(false)
+	set_process(false)
+	set_process_unhandled_input(false)
+	$DeathOverlay.show()
+	await get_tree().create_timer(1.5).timeout
+	get_tree().reload_current_scene()
 
 
 func change_energy(amount: int, direction: bool) -> void:
