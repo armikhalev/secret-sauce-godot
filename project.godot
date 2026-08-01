@@ -10,7 +10,7 @@ config_version=5
 
 [application]
 
-config/name="secret-sauce"
+config/name="Sawsum li nonpesa"
 run/main_scene="res://scenes/game.tscn"
 config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://icon.svg"

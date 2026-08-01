@@ -66,9 +66,9 @@ func rebuild_item_list() -> void:
 		item_label.text = "Lew %d" % (index + 1)
 		item_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
-		state_selector.add_item("Plain", LewData.State.PLAIN)
-		state_selector.add_item("Poisonous", LewData.State.POISONOUS)
-		state_selector.add_item("Tasty", LewData.State.TASTY)
+		state_selector.add_item("li kunkis", LewData.State.PLAIN)
+		state_selector.add_item("li yaxatolosoy", LewData.State.POISONOUS)
+		state_selector.add_item("li mewteylavi", LewData.State.TASTY)
 		state_selector.select(player.lew_inventory[index].state)
 		state_selector.focus_mode = Control.FOCUS_NONE
 		state_selector.item_selected.connect(_on_state_selected.bind(index))
@@ -97,7 +97,7 @@ func _on_player_stats_changed(_bravery: int, _vitality: int, _energy: int, _awar
 
 func _update_player_stats() -> void:
 	player_stats_label.text = (
-		"BRAVERY\n%d / 100\n\nVITALITY\n%d / 100\n\nENERGY\n%d / 100\n\nAWARENESS\n%d / 100"
+		"PEYSMAFU\n%d / 100\n\nMOYSEW\n%d / 100\n\nPASEW\n%d / 100\n\nMAYSAY\n%d / 100"
 		% [player.bravery, player.vitality, player.energy, player.awareness]
 	)
 

@@ -285,6 +285,6 @@ func _find_closest_offered_lew() -> Lew:
 
 func _update_debug_stats() -> void:
 	$DebugStats.text = (
-		"BRV %d  VIT %d  HNG %d\nAGR %d  TRS %d  FER %d  RAD %d"
+		"peysmafu %d  moysew %d\nmamew %d  datmuy %d\nsagawtaw %d  mafu %d  radius %d"
 		% [bravery, vitality, hunger, aggression, trust, fear, roundi(aggression_radius)]
 	)
