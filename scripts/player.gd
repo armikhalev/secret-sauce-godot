@@ -12,7 +12,7 @@ signal lew_inventory_changed
 @export_group("Camera")
 @export var zoom_speed: float = 1.1
 @export var zoom_step: float = 0.1
-@export var default_camera_zoom: float = 1.0
+@export var default_camera_zoom: float = 2.0
 
 var lew_inventory: Array[LewData] = []
 var concealment_sources := 0
@@ -21,6 +21,7 @@ var is_hidden := false
 
 func _ready() -> void:
 	add_to_group("player")
+	$Camera2D.zoom = Vector2.ONE * default_camera_zoom
 
 
 func _physics_process(delta: float) -> void:
@@ -67,7 +68,7 @@ func _change_camera_zoom(amount: float) -> void:
 
 
 func get_minimum_camera_zoom() -> float:
-	return lerpf(1.0, 0.5, float(awareness) / 100.0)
+	return lerpf(default_camera_zoom, 0.5, float(awareness) / 100.0)
 
 
 func change_bravery(amount: int, direction: bool) -> void:
