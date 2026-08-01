@@ -2,6 +2,7 @@ extends CharacterBody2D
 
 signal stats_changed(bravery: int, vitality: int, energy: int, awareness: int)
 signal lew_inventory_changed
+signal perception_mode_changed(is_expanded: bool)
 
 @export var move_speed: float = 260.0
 @export_group("Stats")
@@ -17,6 +18,7 @@ signal lew_inventory_changed
 var lew_inventory: Array[LewData] = []
 var concealment_sources := 0
 var is_hidden := false
+var is_expanded_perception := false
 
 
 func _ready() -> void:
@@ -65,6 +67,7 @@ func _change_camera_zoom(amount: float) -> void:
 	var zoom_value := camera.zoom.x + amount
 	zoom_value = clampf(zoom_value, get_minimum_camera_zoom(), default_camera_zoom)
 	camera.zoom = Vector2.ONE * zoom_value
+	_update_perception_mode()
 
 
 func get_minimum_camera_zoom() -> float:
@@ -91,7 +94,17 @@ func change_awareness(amount: int, direction: bool) -> void:
 	var camera := $Camera2D as Camera2D
 	var clamped_zoom := maxf(camera.zoom.x, get_minimum_camera_zoom())
 	camera.zoom = Vector2.ONE * clamped_zoom
+	_update_perception_mode()
 	stats_changed.emit(bravery, vitality, energy, awareness)
+
+
+func _update_perception_mode() -> void:
+	var camera := $Camera2D as Camera2D
+	var expanded := camera.zoom.x < default_camera_zoom - 0.001
+	if expanded == is_expanded_perception:
+		return
+	is_expanded_perception = expanded
+	perception_mode_changed.emit(is_expanded_perception)
 
 
 func collect_lew(item: LewData) -> void:
