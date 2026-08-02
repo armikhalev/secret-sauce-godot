@@ -1,3 +1,19 @@
-[gd_scene format=3]
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/player.tscn" id="1_player"]
+[ext_resource type="PackedScene" path="res://scenes/saypyastes.tscn" id="2_saypyastes"]
+[ext_resource type="PackedScene" path="res://scenes/saysanstes.tscn" id="3_saysanstes"]
 
 [node name="Scene2" type="Node2D"]
+
+[node name="Player" parent="." instance=ExtResource("1_player")]
+position = Vector2(-260, 0)
+
+[node name="Saypyastes" parent="." instance=ExtResource("2_saypyastes")]
+position = Vector2(80, -90)
+
+[node name="Saypyastes2" parent="." instance=ExtResource("2_saypyastes")]
+position = Vector2(210, 80)
+
+[node name="Saysanstes" parent="." instance=ExtResource("3_saysanstes")]
+position = Vector2(20, 120)

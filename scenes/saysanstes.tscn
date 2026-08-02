@@ -1,0 +1,29 @@
+[gd_scene load_steps=2 format=3]
+
+[sub_resource type="ConvexPolygonShape2D" id="ConvexPolygonShape2D_saysanstes"]
+points = PackedVector2Array(0, -28, 27, 22, -27, 22)
+
+[node name="Saysanstes" type="CharacterBody2D"]
+metadata/creature_form = "small triangle"
+
+[node name="Body" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(0, -28, 27, 22, -27, 22)
+color = Color(0.58, 0.32, 0.7, 1)
+
+[node name="Label" type="Label" parent="."]
+offset_left = -46.0
+offset_top = -8.0
+offset_right = 46.0
+offset_bottom = 12.0
+theme_override_colors/font_color = Color(1, 0.92, 1, 1)
+theme_override_colors/font_shadow_color = Color(0.08, 0.03, 0.1, 1)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_font_sizes/font_size = 13
+text = "saysanstes"
+horizontal_alignment = 1
+vertical_alignment = 1
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("ConvexPolygonShape2D_saysanstes")

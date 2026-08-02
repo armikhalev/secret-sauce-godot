@@ -1,0 +1,29 @@
+[gd_scene load_steps=2 format=3]
+
+[sub_resource type="ConvexPolygonShape2D" id="ConvexPolygonShape2D_saypyastes"]
+points = PackedVector2Array(0, -48, 46, -15, 28, 40, -28, 40, -46, -15)
+
+[node name="Saypyastes" type="CharacterBody2D"]
+metadata/creature_form = "five-angle"
+
+[node name="Body" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(0, -48, 46, -15, 28, 40, -28, 40, -46, -15)
+color = Color(0.7, 0.38, 0.18, 1)
+
+[node name="Label" type="Label" parent="."]
+offset_left = -48.0
+offset_top = -13.0
+offset_right = 48.0
+offset_bottom = 13.0
+theme_override_colors/font_color = Color(1, 0.94, 0.78, 1)
+theme_override_colors/font_shadow_color = Color(0.08, 0.04, 0.02, 1)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_font_sizes/font_size = 17
+text = "saypyastes"
+horizontal_alignment = 1
+vertical_alignment = 1
+mouse_filter = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("ConvexPolygonShape2D_saypyastes")
