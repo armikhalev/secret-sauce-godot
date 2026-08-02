@@ -23,6 +23,16 @@ position = Vector2(0, -12)
 polygon = PackedVector2Array(0, -6, 5, 4, -5, 4)
 color = Color(1, 0.91, 0.58, 1)
 
+[node name="AttackPivot" type="Node2D" parent="."]
+visible = false
+
+[node name="Stick" type="Line2D" parent="AttackPivot"]
+points = PackedVector2Array(0, -14, 0, -82)
+width = 7.0
+default_color = Color(0.42, 0.22, 0.08, 1)
+begin_cap_mode = 2
+end_cap_mode = 2
+
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CapsuleShape2D_player")
 

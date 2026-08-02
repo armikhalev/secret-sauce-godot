@@ -133,6 +133,15 @@ func _die() -> void:
 	queue_free()
 
 
+func receive_attack(damage: int) -> void:
+	if is_dead:
+		return
+	vitality = clampi(vitality - damage, 0, 100)
+	_update_debug_stats()
+	if vitality <= 0:
+		_die()
+
+
 func _start_hop() -> void:
 	if is_instance_valid(target_lew):
 		hop_direction = global_position.direction_to(target_lew.global_position)

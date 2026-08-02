@@ -14,12 +14,17 @@ signal perception_mode_changed(is_expanded: bool)
 @export var zoom_speed: float = 1.1
 @export var zoom_step: float = 0.1
 @export var default_camera_zoom: float = 2.0
+@export_group("Attack")
+@export var attack_range: float = 96.0
+@export var attack_damage: int = 20
+@export var attack_swing_duration: float = 0.24
 
 var lew_inventory: Array[LewData] = []
 var concealment_sources := 0
 var is_hidden := false
 var is_expanded_perception := false
 var is_dead := false
+var is_attacking := false
 
 
 func _ready() -> void:
@@ -61,6 +66,10 @@ func _process(delta: float) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if is_dead:
 		return
+	if event.is_action_pressed("attack"):
+		_attack_with_stick()
+		get_viewport().set_input_as_handled()
+		return
 
 	if not event is InputEventMouseButton and not event is InputEventKey:
 		return
@@ -71,6 +80,41 @@ func _unhandled_input(event: InputEvent) -> void:
 		_change_camera_zoom(zoom_step)
 	elif event.is_action_pressed("zoom_out"):
 		_change_camera_zoom(-zoom_step)
+
+
+func _attack_with_stick() -> void:
+	if is_attacking:
+		return
+
+	is_attacking = true
+	var target := _find_nearest_wo()
+	if is_instance_valid(target):
+		rotation = global_position.direction_to(target.global_position).angle() + PI / 2.0
+
+	var attack_pivot := $AttackPivot as Node2D
+	attack_pivot.rotation = -1.15
+	attack_pivot.show()
+	var tween := create_tween()
+	tween.tween_property(attack_pivot, "rotation", 1.15, attack_swing_duration).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	await get_tree().create_timer(attack_swing_duration * 0.5).timeout
+	if is_instance_valid(target) and global_position.distance_to(target.global_position) <= attack_range:
+		target.receive_attack(attack_damage)
+	await tween.finished
+	attack_pivot.hide()
+	is_attacking = false
+
+
+func _find_nearest_wo() -> CharacterBody2D:
+	var nearest: CharacterBody2D
+	var nearest_distance := attack_range
+	for node in get_tree().get_nodes_in_group("wo"):
+		if not node is CharacterBody2D:
+			continue
+		var distance := global_position.distance_to(node.global_position)
+		if distance <= nearest_distance:
+			nearest = node
+			nearest_distance = distance
+	return nearest
 
 
 func _change_camera_zoom(amount: float) -> void:
