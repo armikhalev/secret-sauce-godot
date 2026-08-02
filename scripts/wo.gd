@@ -1,5 +1,7 @@
 extends CharacterBody2D
 
+signal killed_by_player(respawn_position: Vector2)
+
 @export_group("Identity")
 @export_multiline var creature_note := "A small, rabbit-like creature."
 @export_group("Stats")
@@ -109,7 +111,7 @@ func _apply_vitality_tick() -> void:
 	vitality = clampi(vitality - 1, 0, 100)
 	_update_debug_stats()
 	if vitality <= 0:
-		_die()
+		_die(false)
 
 
 func _get_vitality_tick_interval() -> float:
@@ -124,12 +126,14 @@ func _get_vitality_tick_interval() -> float:
 	return INF
 
 
-func _die() -> void:
+func _die(was_killed_by_player: bool) -> void:
 	if is_dead:
 		return
 	is_dead = true
 	velocity = Vector2.ZERO
 	remove_from_group("wo")
+	if was_killed_by_player:
+		killed_by_player.emit(global_position)
 	queue_free()
 
 
@@ -139,7 +143,7 @@ func receive_attack(damage: int) -> void:
 	vitality = clampi(vitality - damage, 0, 100)
 	_update_debug_stats()
 	if vitality <= 0:
-		_die()
+		_die(true)
 
 
 func _start_hop() -> void:

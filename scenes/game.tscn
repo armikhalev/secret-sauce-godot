@@ -743,6 +743,7 @@ position = Vector2(260, 180)
 [node name="Lew" parent="World/Items" unique_id=1596011159 instance=ExtResource("4_lew")]
 position = Vector2(-6, -145)
 spawn_slot_id = 0
+metadata/eternal = true
 
 [node name="Lew2" parent="World/Items" unique_id=94894600 instance=ExtResource("4_lew")]
 position = Vector2(597, -321)
@@ -759,7 +760,7 @@ spawn_slot_id = 3
 [node name="LewSpawnPoints" type="Node2D" parent="World" unique_id=104882092]
 
 [node name="Slot0" type="Marker2D" parent="World/LewSpawnPoints" unique_id=915650811]
-position = Vector2(-275, -283)
+position = Vector2(-6, -145)
 
 [node name="Slot2" type="Marker2D" parent="World/LewSpawnPoints" unique_id=891652659]
 position = Vector2(597, -321)

@@ -6,6 +6,7 @@ extends Node
 @export var spawn_interval: float = 30.0
 
 var spawn_timer: Timer
+var eternal_spawn_slot_id := -1
 
 
 func _ready() -> void:
@@ -16,6 +17,10 @@ func _ready() -> void:
 	add_child(spawn_timer)
 	get_tree().node_added.connect(_on_node_added)
 	call_deferred("_initialize_population")
+
+
+func _process(_delta: float) -> void:
+	_update_timer()
 
 
 func _initialize_population() -> void:
@@ -30,15 +35,21 @@ func _on_node_added(node: Node) -> void:
 
 
 func _connect_lew(lew: Lew) -> void:
+	if lew.get_meta("eternal", false):
+		eternal_spawn_slot_id = lew.spawn_slot_id
 	if not lew.removed.is_connected(_on_lew_removed):
 		lew.removed.connect(_on_lew_removed)
 
 
 func _on_lew_removed() -> void:
-	spawn_timer.start()
+	_update_timer(true)
 
 
 func _on_spawn_timer_timeout() -> void:
+	if not _has_living_wo():
+		_spawn_eternal_lew_if_missing()
+		_update_timer()
+		return
 	_spawn_first_empty_slot()
 	_update_timer()
 
@@ -58,20 +69,53 @@ func _spawn_first_empty_slot() -> void:
 	for slot_id in available_slots:
 		if occupied_slots.has(slot_id):
 			continue
-
-		var marker := spawn_points.get_child(slot_id) as Node2D
-		var lew := (preload("res://scenes/lew.tscn") as PackedScene).instantiate() as Lew
-		lew.spawn_slot_id = slot_id
-		lew.position = item_container.to_local(marker.global_position)
-		item_container.add_child(lew)
+		_spawn_slot(slot_id, item_container, spawn_points)
 		return
 
 
-func _update_timer() -> void:
-	if _get_area_lew().size() >= population_limit:
+func _spawn_eternal_lew_if_missing() -> void:
+	if eternal_spawn_slot_id < 0 or _is_slot_occupied(eternal_spawn_slot_id):
+		return
+	var item_container := get_node_or_null(item_container_path) as Node2D
+	var spawn_points := get_node_or_null(spawn_points_path)
+	if item_container == null or spawn_points == null:
+		return
+	if eternal_spawn_slot_id >= spawn_points.get_child_count():
+		return
+	_spawn_slot(eternal_spawn_slot_id, item_container, spawn_points)
+
+
+func _spawn_slot(slot_id: int, item_container: Node2D, spawn_points: Node) -> void:
+	var marker := spawn_points.get_child(slot_id) as Node2D
+	var lew := (preload("res://scenes/lew.tscn") as PackedScene).instantiate() as Lew
+	lew.spawn_slot_id = slot_id
+	if slot_id == eternal_spawn_slot_id:
+		lew.set_meta("eternal", true)
+	lew.position = item_container.to_local(marker.global_position)
+	item_container.add_child(lew)
+
+
+func _update_timer(restart_countdown := false) -> void:
+	var needs_respawn := (
+		_get_area_lew().size() < population_limit
+		if _has_living_wo()
+		else eternal_spawn_slot_id >= 0 and not _is_slot_occupied(eternal_spawn_slot_id)
+	)
+	if not needs_respawn:
 		spawn_timer.stop()
-	elif spawn_timer.is_stopped():
+	elif restart_countdown or spawn_timer.is_stopped():
 		spawn_timer.start()
+
+
+func _has_living_wo() -> bool:
+	return not get_tree().get_nodes_in_group("wo").is_empty()
+
+
+func _is_slot_occupied(slot_id: int) -> bool:
+	for lew in _get_area_lew():
+		if lew.spawn_slot_id == slot_id:
+			return true
+	return false
 
 
 func _get_area_lew() -> Array[Lew]:
