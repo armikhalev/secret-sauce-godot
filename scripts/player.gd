@@ -98,8 +98,18 @@ func _attack_with_stick() -> void:
 	var tween := create_tween()
 	tween.tween_property(attack_pivot, "rotation", 1.15, attack_swing_duration).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	await get_tree().create_timer(attack_swing_duration * 0.5).timeout
-	if is_instance_valid(target) and global_position.distance_to(target.global_position) <= attack_range:
-		target.receive_stick_hit(self, attack_damage)
+	var hit_targets := _find_stick_targets_in_range()
+	# Preserve a target acquired at swing start if it moved only a short distance
+	# during the wind-up (notably saykwastes retreating from the player).
+	if (
+		is_instance_valid(target)
+		and target.get("is_dead") != true
+		and global_position.distance_to(target.global_position) <= attack_range + 40.0
+		and not hit_targets.has(target)
+	):
+		hit_targets.append(target)
+	for hit_target in hit_targets:
+		hit_target.receive_stick_hit(self, attack_damage)
 	await tween.finished
 	attack_pivot.hide()
 	is_attacking = false
@@ -112,11 +122,26 @@ func _find_nearest_stick_target() -> Node2D:
 		for node in get_tree().get_nodes_in_group(group_name):
 			if not node is Node2D or not node.has_method("receive_stick_hit"):
 				continue
+			if node.get("is_dead") == true:
+				continue
 			var distance := global_position.distance_to(node.global_position)
 			if distance <= nearest_distance:
 				nearest = node
 				nearest_distance = distance
 	return nearest
+
+
+func _find_stick_targets_in_range() -> Array[Node2D]:
+	var targets: Array[Node2D] = []
+	for group_name in ["wo", "saykwastes"]:
+		for node in get_tree().get_nodes_in_group(group_name):
+			if not node is Node2D or not node.has_method("receive_stick_hit"):
+				continue
+			if node.get("is_dead") == true:
+				continue
+			if global_position.distance_to(node.global_position) <= attack_range:
+				targets.append(node)
+	return targets
 
 
 func _change_camera_zoom(amount: float) -> void:
