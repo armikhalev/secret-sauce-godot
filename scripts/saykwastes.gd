@@ -1,7 +1,7 @@
 extends CharacterBody2D
 
 @export_group("Stats")
-@export_range(0, 100) var bravery: int = 0
+@export_range(0, 100) var bravery: int = 50
 @export_range(0, 100) var vitality: int = 100
 @export_range(0, 100) var hunger: int = 0
 @export_range(0, 100) var aggression: int = 50
@@ -230,6 +230,16 @@ func _ensure_relationship(target: Node) -> void:
 func receive_push(push_motion: Vector2) -> void:
 	if is_dead:
 		global_position += push_motion
+
+
+func receive_stick_hit(attacker: Node, _damage: int) -> void:
+	if is_dead:
+		return
+	fear = clampi(fear + 1, 0, 100)
+	bravery = clampi(bravery - 1, 0, 100)
+	if attacker.has_method("change_bravery"):
+		attacker.change_bravery(1, true)
+	_update_debug_stats()
 
 
 func _start_poisoning() -> void:

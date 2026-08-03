@@ -146,6 +146,10 @@ func receive_attack(damage: int) -> void:
 		_die(true)
 
 
+func receive_stick_hit(_attacker: Node, damage: int) -> void:
+	receive_attack(damage)
+
+
 func _start_hop() -> void:
 	if is_instance_valid(target_lew):
 		hop_direction = global_position.direction_to(target_lew.global_position)

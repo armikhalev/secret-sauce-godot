@@ -88,7 +88,7 @@ func _attack_with_stick() -> void:
 		return
 
 	is_attacking = true
-	var target := _find_nearest_wo()
+	var target := _find_nearest_stick_target()
 	if is_instance_valid(target):
 		rotation = global_position.direction_to(target.global_position).angle() + PI / 2.0
 
@@ -99,22 +99,23 @@ func _attack_with_stick() -> void:
 	tween.tween_property(attack_pivot, "rotation", 1.15, attack_swing_duration).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	await get_tree().create_timer(attack_swing_duration * 0.5).timeout
 	if is_instance_valid(target) and global_position.distance_to(target.global_position) <= attack_range:
-		target.receive_attack(attack_damage)
+		target.receive_stick_hit(self, attack_damage)
 	await tween.finished
 	attack_pivot.hide()
 	is_attacking = false
 
 
-func _find_nearest_wo() -> CharacterBody2D:
-	var nearest: CharacterBody2D
+func _find_nearest_stick_target() -> Node2D:
+	var nearest: Node2D
 	var nearest_distance := attack_range
-	for node in get_tree().get_nodes_in_group("wo"):
-		if not node is CharacterBody2D:
-			continue
-		var distance := global_position.distance_to(node.global_position)
-		if distance <= nearest_distance:
-			nearest = node
-			nearest_distance = distance
+	for group_name in ["wo", "saykwastes"]:
+		for node in get_tree().get_nodes_in_group(group_name):
+			if not node is Node2D or not node.has_method("receive_stick_hit"):
+				continue
+			var distance := global_position.distance_to(node.global_position)
+			if distance <= nearest_distance:
+				nearest = node
+				nearest_distance = distance
 	return nearest
 
 
