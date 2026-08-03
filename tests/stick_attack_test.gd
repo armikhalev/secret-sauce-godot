@@ -29,6 +29,8 @@ func _ready() -> void:
 	assert(saykwastes.bravery == 98, "saykwastes bravery must fall on every completed hit")
 	assert(saykwastes.fear == 2, "saykwastes fear must rise on every completed hit")
 	assert(player.bravery == 2, "player bravery must rise on every completed hit")
+	wo.receive_stick_hit(player, 60)
+	assert(player.wo_inventory == 1, "a wo killed by the player must enter the player's inventory")
 	for expected_delay in [[100, 1.0], [75, 2.0], [50, 3.0], [25, 4.0], [0, 5.0]]:
 		saykwastes.bravery = expected_delay[0]
 		assert(is_equal_approx(saykwastes.get_bravery_attack_delay(), expected_delay[1]), "bravery must map to the expected attack interval")

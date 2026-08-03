@@ -2,6 +2,7 @@ extends CharacterBody2D
 
 signal stats_changed(bravery: int, vitality: int, energy: int, awareness: int)
 signal lew_inventory_changed
+signal wo_inventory_changed
 signal perception_mode_changed(is_expanded: bool)
 
 @export var move_speed: float = 260.0
@@ -20,6 +21,7 @@ signal perception_mode_changed(is_expanded: bool)
 @export var attack_swing_duration: float = 0.24
 
 var lew_inventory: Array[LewData] = []
+var wo_inventory := 0
 var concealment_sources := 0
 var is_hidden := false
 var is_expanded_perception := false
@@ -213,6 +215,11 @@ func _update_perception_mode() -> void:
 func collect_lew(item: LewData) -> void:
 	lew_inventory.append(item)
 	lew_inventory_changed.emit()
+
+
+func collect_wo() -> void:
+	wo_inventory += 1
+	wo_inventory_changed.emit()
 
 
 func set_lew_state(inventory_index: int, state: LewData.State) -> bool:

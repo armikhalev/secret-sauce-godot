@@ -14,6 +14,7 @@ var selected_item_index := 0
 func _ready() -> void:
 	player = get_node(player_path) as CharacterBody2D
 	player.lew_inventory_changed.connect(_on_inventory_changed)
+	player.wo_inventory_changed.connect(_on_inventory_changed)
 	player.stats_changed.connect(_on_player_stats_changed)
 	_update_player_stats()
 	hide()
@@ -59,7 +60,7 @@ func rebuild_item_list() -> void:
 	for child in item_list.get_children():
 		child.queue_free()
 
-	empty_label.visible = player.lew_inventory.is_empty()
+	empty_label.visible = player.lew_inventory.is_empty() and player.wo_inventory <= 0
 
 	for index in player.lew_inventory.size():
 		var row := HBoxContainer.new()
@@ -81,6 +82,12 @@ func rebuild_item_list() -> void:
 		item_list.add_child(row)
 		state_selectors.append(state_selector)
 
+	if player.wo_inventory > 0:
+		var wo_label := Label.new()
+		wo_label.text = "wo %d" % player.wo_inventory
+		wo_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		item_list.add_child(wo_label)
+
 	if not state_selectors.is_empty():
 		_select_item(clampi(selected_item_index, 0, state_selectors.size() - 1))
 
@@ -90,7 +97,7 @@ func _on_state_selected(selected_index: int, inventory_index: int) -> void:
 
 
 func _on_inventory_changed() -> void:
-	if visible and state_selectors.size() != player.lew_inventory.size():
+	if visible:
 		rebuild_item_list()
 
 

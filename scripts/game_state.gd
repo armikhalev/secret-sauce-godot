@@ -2,6 +2,7 @@ extends Node
 
 var saykwastes_is_dead := false
 var carried_lew_states: Array[int] = []
+var carried_wo_count := 0
 var has_carried_inventory := false
 
 
@@ -9,6 +10,7 @@ func capture_player_inventory(player: Node) -> void:
 	carried_lew_states.clear()
 	for lew_data in player.lew_inventory:
 		carried_lew_states.append(lew_data.state)
+	carried_wo_count = player.wo_inventory
 	has_carried_inventory = true
 
 
@@ -20,5 +22,7 @@ func restore_player_inventory(player: Node) -> void:
 		var lew_data := LewData.new()
 		lew_data.state = state as LewData.State
 		player.lew_inventory.append(lew_data)
+	player.wo_inventory = carried_wo_count
 	has_carried_inventory = false
 	player.lew_inventory_changed.emit()
+	player.wo_inventory_changed.emit()

@@ -126,28 +126,30 @@ func _get_vitality_tick_interval() -> float:
 	return INF
 
 
-func _die(was_killed_by_player: bool) -> void:
+func _die(was_killed_by_player: bool, killer: Node = null) -> void:
 	if is_dead:
 		return
 	is_dead = true
 	velocity = Vector2.ZERO
 	remove_from_group("wo")
 	if was_killed_by_player:
+		if is_instance_valid(killer) and killer.has_method("collect_wo"):
+			killer.collect_wo()
 		killed_by_player.emit(global_position)
 	queue_free()
 
 
-func receive_attack(damage: int) -> void:
+func receive_attack(damage: int, attacker: Node = null) -> void:
 	if is_dead:
 		return
 	vitality = clampi(vitality - damage, 0, 100)
 	_update_debug_stats()
 	if vitality <= 0:
-		_die(true)
+		_die(true, attacker)
 
 
-func receive_stick_hit(_attacker: Node, damage: int) -> void:
-	receive_attack(damage)
+func receive_stick_hit(attacker: Node, damage: int) -> void:
+	receive_attack(damage, attacker)
 
 
 func _start_hop() -> void:
