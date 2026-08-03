@@ -1,7 +1,7 @@
 extends CharacterBody2D
 
 @export_group("Stats")
-@export_range(0, 100) var bravery: int = 50
+@export_range(0, 100) var bravery: int = 100
 @export_range(0, 100) var vitality: int = 100
 @export_range(0, 100) var hunger: int = 0
 @export_range(0, 100) var aggression: int = 50
@@ -52,6 +52,8 @@ func _physics_process(delta: float) -> void:
 
 	if not is_instance_valid(target_lew):
 		target_lew = _find_closest_offered_lew()
+	elif home_position.distance_to(target_lew.global_position) > get_roaming_radius():
+		target_lew = null
 
 	if not is_instance_valid(target_lew):
 		if _process_player_attack(delta):
@@ -109,7 +111,12 @@ func _process_player_attack(delta: float) -> bool:
 		return false
 
 	var distance_to_player := global_position.distance_to(player.global_position)
-	if distance_to_player > aggression_radius:
+	var roaming_radius := get_roaming_radius()
+	if (
+		distance_to_player > aggression_radius
+		or home_position.distance_to(player.global_position) > roaming_radius
+		or global_position.distance_to(home_position) > roaming_radius
+	):
 		has_seen_player = false
 		retreat_time_remaining = 0.0
 		attack_cooldown_remaining = 0.0
@@ -142,7 +149,8 @@ func _process_player_attack(delta: float) -> bool:
 		player.change_vitality(attack_damage, false)
 		retreat_time_remaining = retreat_duration
 		var trust_ratio := clampf(float(player_trust) / float(player_aggression), 0.0, 1.0)
-		attack_cooldown_remaining = lerpf(retreat_duration, maximum_attack_delay, trust_ratio)
+		var bravery_attack_delay := get_bravery_attack_delay()
+		attack_cooldown_remaining = lerpf(bravery_attack_delay, maximum_attack_delay, trust_ratio)
 		velocity = player.global_position.direction_to(global_position) * retreat_speed
 	else:
 		var chase_target := player.global_position if can_see_player else last_seen_player_position
@@ -280,12 +288,15 @@ func _die() -> void:
 func _find_closest_offered_lew() -> Lew:
 	var closest: Lew
 	var closest_distance_squared := lew_notice_radius * lew_notice_radius
+	var roaming_radius_squared := get_roaming_radius() * get_roaming_radius()
 
 	for node in get_tree().get_nodes_in_group("npc_food"):
 		if not node is Lew:
 			continue
 
 		var lew := node as Lew
+		if home_position.distance_squared_to(lew.global_position) > roaming_radius_squared:
+			continue
 		var distance_squared := global_position.distance_squared_to(lew.global_position)
 		if distance_squared <= closest_distance_squared:
 			closest = lew
@@ -294,8 +305,19 @@ func _find_closest_offered_lew() -> Lew:
 	return closest
 
 
+func get_roaming_radius() -> float:
+	if fear <= 0:
+		return INF
+	return maxf(2100.0 - fear * 10.0, 0.0)
+
+
+func get_bravery_attack_delay() -> float:
+	return lerpf(5.0, 1.0, float(bravery) / 100.0)
+
+
 func _update_debug_stats() -> void:
+	var roaming_radius_text := "∞" if is_inf(get_roaming_radius()) else str(roundi(get_roaming_radius()))
 	$DebugStats.text = (
-		"peysmafu %d  moysew %d\nmamew %d  datmuy %d\nsagawtaw %d  mafu %d  radius %d"
-		% [bravery, vitality, hunger, aggression, trust, fear, roundi(aggression_radius)]
+		"peysmafu %d  moysew %d\nmamew %d  datmuy %d\nsagawtaw %d  mafu %d  radius %s"
+		% [bravery, vitality, hunger, aggression, trust, fear, roaming_radius_text]
 	)
