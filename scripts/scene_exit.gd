@@ -15,4 +15,5 @@ func _on_body_entered(body: Node2D) -> void:
 	if destination_scene.is_empty():
 		return
 	is_transitioning = true
+	GameState.capture_player_inventory(body)
 	get_tree().change_scene_to_file(destination_scene)

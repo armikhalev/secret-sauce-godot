@@ -257,6 +257,7 @@ func _die() -> void:
 		return
 
 	is_dead = true
+	GameState.saykwastes_is_dead = true
 	is_poisoned = false
 	target_lew = null
 	velocity = Vector2.ZERO

@@ -1,9 +1,15 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/saysanstes.gd" id="1_saysanstes"]
 
 [sub_resource type="ConvexPolygonShape2D" id="ConvexPolygonShape2D_saysanstes"]
 points = PackedVector2Array(0, -28, 27, 22, -27, 22)
 
+[sub_resource type="CircleShape2D" id="CircleShape2D_conversation"]
+radius = 120.0
+
 [node name="Saysanstes" type="CharacterBody2D"]
+script = ExtResource("1_saysanstes")
 metadata/creature_form = "small triangle"
 
 [node name="Body" type="Polygon2D" parent="."]
@@ -27,3 +33,67 @@ mouse_filter = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("ConvexPolygonShape2D_saysanstes")
+
+[node name="ConversationRange" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ConversationRange"]
+shape = SubResource("CircleShape2D_conversation")
+
+[node name="Dialogue" type="CanvasLayer" parent="."]
+visible = false
+layer = 50
+
+[node name="Panel" type="PanelContainer" parent="Dialogue"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -250.0
+offset_top = -95.0
+offset_right = 250.0
+offset_bottom = 95.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Content" type="VBoxContainer" parent="Dialogue/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 24
+
+[node name="Question" type="Label" parent="Dialogue/Panel/Content"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "saykwastes aw moxoy?"
+horizontal_alignment = 1
+
+[node name="Answers" type="HBoxContainer" parent="Dialogue/Panel/Content"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 90
+
+[node name="Yey" type="Label" parent="Dialogue/Panel/Content/Answers"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 26
+text = "yey"
+
+[node name="No" type="Label" parent="Dialogue/Panel/Content/Answers"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 26
+text = "no"
+
+[node name="Demand" type="Label" parent="Dialogue"]
+visible = false
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 80.0
+offset_bottom = 125.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(1, 0.82, 0.3, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 30
+text = "mi ma e 5 lew"
+horizontal_alignment = 1

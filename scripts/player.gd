@@ -30,6 +30,7 @@ var is_attacking := false
 func _ready() -> void:
 	add_to_group("player")
 	$Camera2D.zoom = Vector2.ONE * default_camera_zoom
+	GameState.restore_player_inventory(self)
 
 
 func _physics_process(delta: float) -> void:
