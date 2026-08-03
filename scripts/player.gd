@@ -25,11 +25,14 @@ var is_hidden := false
 var is_expanded_perception := false
 var is_dead := false
 var is_attacking := false
+var is_poisoned := false
+var poison_stacks := 0
 
 
 func _ready() -> void:
 	add_to_group("player")
 	$Camera2D.zoom = Vector2.ONE * default_camera_zoom
+	$PoisonTimer.timeout.connect(_on_poison_timer_timeout)
 	GameState.restore_player_inventory(self)
 
 
@@ -174,6 +177,7 @@ func _die() -> void:
 	if is_dead:
 		return
 	is_dead = true
+	_clear_poisoning()
 	velocity = Vector2.ZERO
 	set_physics_process(false)
 	set_process(false)
@@ -218,6 +222,49 @@ func set_lew_state(inventory_index: int, state: LewData.State) -> bool:
 	lew_inventory[inventory_index].state = state
 	lew_inventory_changed.emit()
 	return true
+
+
+func eat_lew(inventory_index: int) -> bool:
+	if inventory_index < 0 or inventory_index >= lew_inventory.size() or is_dead:
+		return false
+	var lew_data: LewData = lew_inventory.pop_at(inventory_index)
+	match lew_data.state:
+		LewData.State.PLAIN:
+			change_vitality(5, true)
+		LewData.State.POISONOUS:
+			_start_poisoning()
+		LewData.State.TASTY:
+			_cure_one_poison_stack()
+	lew_inventory_changed.emit()
+	return true
+
+
+func _start_poisoning() -> void:
+	if is_dead:
+		return
+	poison_stacks += 1
+	is_poisoned = true
+	if $PoisonTimer.is_stopped():
+		$PoisonTimer.start()
+
+
+func _cure_one_poison_stack() -> void:
+	poison_stacks = maxi(poison_stacks - 1, 0)
+	is_poisoned = poison_stacks > 0
+	if not is_poisoned:
+		$PoisonTimer.stop()
+
+
+func _clear_poisoning() -> void:
+	poison_stacks = 0
+	is_poisoned = false
+	$PoisonTimer.stop()
+
+
+func _on_poison_timer_timeout() -> void:
+	if is_dead or poison_stacks <= 0:
+		return
+	change_vitality(poison_stacks, false)
 
 
 func drop_lew(inventory_index: int, drop_position: Vector2) -> Lew:

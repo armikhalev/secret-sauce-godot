@@ -38,6 +38,9 @@ func _input(event: InputEvent) -> void:
 	elif visible and event.is_action_pressed("menu_left"):
 		_change_selected_state(-1)
 		get_viewport().set_input_as_handled()
+	elif visible and event.is_action_pressed("menu_eat"):
+		_eat_selected_item()
+		get_viewport().set_input_as_handled()
 	elif visible and event.is_action_pressed("menu_accept"):
 		_drop_selected_item()
 		get_viewport().set_input_as_handled()
@@ -137,3 +140,14 @@ func _drop_selected_item() -> void:
 		selected_item_index = 0
 	else:
 		selected_item_index = mini(selected_item_index, player.lew_inventory.size() - 1)
+
+
+func _eat_selected_item() -> void:
+	if player.lew_inventory.is_empty():
+		return
+	player.eat_lew(selected_item_index)
+	if player.lew_inventory.is_empty():
+		selected_item_index = 0
+	else:
+		selected_item_index = mini(selected_item_index, player.lew_inventory.size() - 1)
+	rebuild_item_list()

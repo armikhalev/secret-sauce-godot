@@ -36,6 +36,9 @@ end_cap_mode = 2
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CapsuleShape2D_player")
 
+[node name="PoisonTimer" type="Timer" parent="."]
+wait_time = 1.0
+
 [node name="Camera2D" type="Camera2D" parent="."]
 zoom = Vector2(2, 2)
 position_smoothing_enabled = true
