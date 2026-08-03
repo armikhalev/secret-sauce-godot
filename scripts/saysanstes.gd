@@ -1,7 +1,7 @@
 extends CharacterBody2D
 
 @export_range(0, 5) var respecting := 0
-@export_range(0, 100) var greed := 0
+@export_range(0, 100) var greed := 10
 @export_range(0, 100) var aggression := 75
 @export var requested_lew := 5
 
@@ -43,7 +43,8 @@ func _on_conversation_range_entered(body: Node2D) -> void:
 		return
 	player = body as CharacterBody2D
 	_react_to_saykwastes_death()
-	_try_start_lew_demand()
+	if question_answered:
+		_try_start_lew_demand()
 	if lew_remaining > 0:
 		dialogue.show()
 		_deliver_lew()
