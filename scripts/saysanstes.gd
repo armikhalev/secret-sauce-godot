@@ -1,9 +1,10 @@
 extends CharacterBody2D
 
-@export_range(0, 5) var respecting := 0
+@export_range(-100, 100) var respecting := 0
 @export_range(0, 100) var greed := 10
 @export_range(0, 100) var aggression := 75
 @export var requested_lew := 5
+@export var lie_aggression_increase := 25
 
 var player: CharacterBody2D
 var question_answered := false
@@ -12,11 +13,13 @@ var lew_remaining := 0
 var chosen_saypyastes: Node
 var reacted_to_saykwastes_death := false
 var lew_demand_started := false
+var question_index := 0
 
 @onready var dialogue := $Dialogue
 @onready var yey_label := $Dialogue/Panel/Content/Answers/Yey
 @onready var no_label := $Dialogue/Panel/Content/Answers/No
 @onready var demand_label := $Dialogue/Demand
+@onready var question_label := $Dialogue/Panel/Content/Question
 
 
 func _ready() -> void:
@@ -60,12 +63,33 @@ func _on_conversation_range_exited(body: Node2D) -> void:
 
 
 func _answer_question(answered_yey: bool) -> void:
-	question_answered = true
-	if answered_yey and GameState.saykwastes_is_dead:
-		respecting = clampi(respecting + 1, 0, 5)
-	_try_start_lew_demand()
-	if lew_remaining <= 0:
-		dialogue.hide()
+	if question_index == 0:
+		if answered_yey and GameState.saykwastes_is_dead:
+			question_answered = true
+			respecting = clampi(respecting + 1, -100, 100)
+			_try_start_lew_demand()
+			if lew_remaining <= 0:
+				dialogue.hide()
+		elif GameState.saykwastes_is_dead:
+			aggression = clampi(aggression + lie_aggression_increase, 0, 100)
+			respecting = -10
+			question_index = 1
+			selected_answer = 0
+			question_label.text = "saykwastes awgo ty paxasay?"
+			_update_answer_selection()
+	else:
+		question_answered = true
+		_finish_second_question(answered_yey)
+
+
+func _finish_second_question(answered_yey: bool) -> void:
+	if answered_yey:
+		question_label.text = "hahahaha"
+		$Dialogue/Panel/Content/Answers.hide()
+		await get_tree().create_timer(1.0).timeout
+		_start_lew_demand(true, true)
+	else:
+		_start_lew_demand(false, false)
 
 
 func _react_to_saykwastes_death() -> void:
@@ -79,14 +103,16 @@ func _try_start_lew_demand() -> void:
 	if lew_demand_started:
 		return
 	if greed > 20 and aggression > 50:
-		_start_lew_demand()
+		_start_lew_demand(true, false)
 
 
-func _start_lew_demand() -> void:
+func _start_lew_demand(confiscate_lew: bool, confiscate_wo: bool) -> void:
 	lew_demand_started = true
 	chosen_saypyastes = _choose_random_saypyastes()
-	if is_instance_valid(chosen_saypyastes):
+	if confiscate_lew and is_instance_valid(chosen_saypyastes):
 		_transfer_all_player_lew(chosen_saypyastes)
+	if confiscate_wo and is_instance_valid(chosen_saypyastes):
+		_transfer_all_player_wo(chosen_saypyastes)
 	lew_remaining = requested_lew
 	_update_demand_text()
 	$Dialogue/Panel.hide()
@@ -111,6 +137,14 @@ func _transfer_all_player_lew(recipient: Node) -> void:
 		var lew_data: LewData = player.lew_inventory.pop_back()
 		recipient.receive_lew(lew_data)
 	player.lew_inventory_changed.emit()
+
+
+func _transfer_all_player_wo(recipient: Node) -> void:
+	if player.wo_inventory <= 0:
+		return
+	recipient.receive_wo(player.wo_inventory)
+	player.wo_inventory = 0
+	player.wo_inventory_changed.emit()
 
 
 func _choose_random_saypyastes() -> Node:
