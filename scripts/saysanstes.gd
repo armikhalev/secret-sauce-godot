@@ -10,6 +10,7 @@ var player: CharacterBody2D
 var question_answered := false
 var selected_answer := 0
 var lew_remaining := 0
+var wo_remaining := 0
 var chosen_saypyastes: Node
 var reacted_to_saykwastes_death := false
 var lew_demand_started := false
@@ -26,6 +27,8 @@ func _ready() -> void:
 	$ConversationRange.body_entered.connect(_on_conversation_range_entered)
 	$ConversationRange.body_exited.connect(_on_conversation_range_exited)
 	_react_to_saykwastes_death()
+	if not GameState.saykwastes_is_dead:
+		question_label.text = "wo aw mew e lew?"
 	_update_answer_selection()
 
 
@@ -48,10 +51,10 @@ func _on_conversation_range_entered(body: Node2D) -> void:
 	_react_to_saykwastes_death()
 	if question_answered:
 		_try_start_lew_demand()
-	if lew_remaining > 0:
+	if lew_remaining > 0 or wo_remaining > 0:
 		dialogue.show()
-		_deliver_lew()
-	if GameState.saykwastes_is_dead and not question_answered:
+		_deliver_requested_items()
+	if not question_answered:
 		dialogue.show()
 
 
@@ -63,6 +66,14 @@ func _on_conversation_range_exited(body: Node2D) -> void:
 
 
 func _answer_question(answered_yey: bool) -> void:
+	if not GameState.saykwastes_is_dead:
+		question_answered = true
+		if answered_yey:
+			_start_lew_demand(false, false, 0, 5)
+		else:
+			_finish_living_saykwastes_wrong_answer()
+		return
+
 	if question_index == 0:
 		if answered_yey and GameState.saykwastes_is_dead:
 			question_answered = true
@@ -92,6 +103,13 @@ func _finish_second_question(answered_yey: bool) -> void:
 		_start_lew_demand(false, false)
 
 
+func _finish_living_saykwastes_wrong_answer() -> void:
+	question_label.text = "hahaha"
+	$Dialogue/Panel/Content/Answers.hide()
+	await get_tree().create_timer(1.0).timeout
+	_start_lew_demand(true, true, 5, 3)
+
+
 func _react_to_saykwastes_death() -> void:
 	if reacted_to_saykwastes_death or not GameState.saykwastes_is_dead:
 		return
@@ -106,20 +124,26 @@ func _try_start_lew_demand() -> void:
 		_start_lew_demand(true, false)
 
 
-func _start_lew_demand(confiscate_lew: bool, confiscate_wo: bool) -> void:
+func _start_lew_demand(
+	confiscate_lew: bool,
+	confiscate_wo: bool,
+	new_lew_remaining: int = -1,
+	new_wo_remaining: int = 0
+) -> void:
 	lew_demand_started = true
 	chosen_saypyastes = _choose_random_saypyastes()
 	if confiscate_lew and is_instance_valid(chosen_saypyastes):
 		_transfer_all_player_lew(chosen_saypyastes)
 	if confiscate_wo and is_instance_valid(chosen_saypyastes):
 		_transfer_all_player_wo(chosen_saypyastes)
-	lew_remaining = requested_lew
+	lew_remaining = requested_lew if new_lew_remaining < 0 else new_lew_remaining
+	wo_remaining = new_wo_remaining
 	_update_demand_text()
 	$Dialogue/Panel.hide()
 	demand_label.show()
 
 
-func _deliver_lew() -> void:
+func _deliver_requested_items() -> void:
 	if not is_instance_valid(player) or not is_instance_valid(chosen_saypyastes):
 		return
 	var delivery_count := mini(lew_remaining, player.lew_inventory.size())
@@ -129,6 +153,12 @@ func _deliver_lew() -> void:
 	lew_remaining -= delivery_count
 	if delivery_count > 0:
 		player.lew_inventory_changed.emit()
+	var wo_delivery_count := mini(wo_remaining, player.wo_inventory)
+	if wo_delivery_count > 0:
+		player.wo_inventory -= wo_delivery_count
+		chosen_saypyastes.receive_wo(wo_delivery_count)
+		wo_remaining -= wo_delivery_count
+		player.wo_inventory_changed.emit()
 	_update_demand_text()
 
 
@@ -160,5 +190,14 @@ func _update_answer_selection() -> void:
 
 
 func _update_demand_text() -> void:
-	demand_label.text = "mi ma e %d lew" % lew_remaining
-	demand_label.visible = lew_remaining > 0
+	if lew_remaining == 5 and wo_remaining == 3:
+		demand_label.text = "mi ma e pya (5) lew i san (3) wo"
+	elif lew_remaining == 0 and wo_remaining == 5:
+		demand_label.text = "mi ma e pya (5) wo"
+	elif lew_remaining > 0 and wo_remaining > 0:
+		demand_label.text = "mi ma e (%d) lew i (%d) wo" % [lew_remaining, wo_remaining]
+	elif lew_remaining > 0:
+		demand_label.text = "mi ma e (%d) lew" % lew_remaining
+	elif wo_remaining > 0:
+		demand_label.text = "mi ma e (%d) wo" % wo_remaining
+	demand_label.visible = lew_remaining > 0 or wo_remaining > 0
