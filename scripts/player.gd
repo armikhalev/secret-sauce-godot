@@ -19,6 +19,7 @@ signal perception_mode_changed(is_expanded: bool)
 @export var attack_range: float = 96.0
 @export var attack_damage: int = 20
 @export var attack_swing_duration: float = 0.24
+@export var wall_rebound_speed: float = 720.0
 
 var lew_inventory: Array[LewData] = []
 var wo_inventory := 0
@@ -29,6 +30,8 @@ var is_dead := false
 var is_attacking := false
 var is_poisoned := false
 var poison_stacks := 0
+var is_rebounding := false
+var rebound_direction := Vector2.ZERO
 var bravery_by_npc_class: Dictionary = {
 	"predator": 0,
 	"herbivor": 0,
@@ -47,6 +50,14 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	if is_dead:
 		velocity = Vector2.ZERO
+		return
+	if is_rebounding:
+		velocity = rebound_direction * wall_rebound_speed
+		var rebound_collision := move_and_collide(velocity * delta)
+		if rebound_collision != null:
+			is_rebounding = false
+			rebound_direction = Vector2.ZERO
+			velocity = Vector2.ZERO
 		return
 
 	var direction := Input.get_vector("move_left", "move_right", "move_up", "move_down")
@@ -76,7 +87,7 @@ func _process(delta: float) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if is_dead:
+	if is_dead or is_rebounding:
 		return
 	if event.is_action_pressed("attack"):
 		_attack_with_stick()
@@ -121,6 +132,7 @@ func _attack_with_stick() -> void:
 		hit_targets.append(target)
 	for hit_target in hit_targets:
 		hit_target.receive_stick_hit(self, attack_damage)
+	_try_start_wall_rebound()
 	await tween.finished
 	attack_pivot.hide()
 	is_attacking = false
@@ -153,6 +165,33 @@ func _find_stick_targets_in_range() -> Array[Node2D]:
 			if global_position.distance_to(node.global_position) <= attack_range:
 				targets.append(node)
 	return targets
+
+
+func _try_start_wall_rebound() -> void:
+	var forward := Vector2.UP.rotated(rotation)
+	var query := PhysicsRayQueryParameters2D.create(
+		global_position,
+		global_position + forward * attack_range
+	)
+	query.exclude = [get_rid()]
+	query.collision_mask = collision_mask
+	query.collide_with_areas = false
+	query.collide_with_bodies = true
+	var hit := get_world_2d().direct_space_state.intersect_ray(query)
+	if hit.is_empty() or not _is_wall_collider(hit.get("collider")):
+		return
+	is_rebounding = true
+	rebound_direction = -forward
+
+
+func _is_wall_collider(collider: Object) -> bool:
+	if collider is TileMapLayer:
+		return true
+	return (
+		collider is CollisionObject2D
+		and collider.has_meta("obstacle_type")
+		and collider.get_meta("obstacle_type") == "wall"
+	)
 
 
 func _change_camera_zoom(amount: float) -> void:
