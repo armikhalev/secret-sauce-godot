@@ -1,0 +1,29 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/inventory_menu.tscn" id="1_inventory"]
+[ext_resource type="Script" path="res://scripts/lew_hud.gd" id="2_lew_hud"]
+
+[node name="PlayerInterface" type="CanvasLayer"]
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = -132.0
+offset_right = 390.0
+offset_bottom = -24.0
+grow_vertical = 0
+mouse_filter = 2
+
+[node name="Title" type="Label" parent="MarginContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.91, 0.68, 1)
+theme_override_font_sizes/font_size = 24
+text = "SAWSUM LI NONPESA
+[I] koyto
+lew 0"
+vertical_alignment = 2
+script = ExtResource("2_lew_hud")
+
+[node name="InventoryMenu" parent="." instance=ExtResource("1_inventory")]

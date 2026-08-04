@@ -12,7 +12,14 @@ var selected_item_index := 0
 
 
 func _ready() -> void:
-	player = get_node(player_path) as CharacterBody2D
+	if player_path.is_empty():
+		player = get_tree().get_first_node_in_group("player") as CharacterBody2D
+	else:
+		player = get_node(player_path) as CharacterBody2D
+	if player == null:
+		push_error("InventoryMenu could not find the player.")
+		set_process_input(false)
+		return
 	player.lew_inventory_changed.connect(_on_inventory_changed)
 	player.wo_inventory_changed.connect(_on_inventory_changed)
 	player.stats_changed.connect(_on_player_stats_changed)

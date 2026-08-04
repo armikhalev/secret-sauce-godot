@@ -4,6 +4,7 @@
 [ext_resource type="PackedScene" path="res://scenes/saypyastes.tscn" id="2_saypyastes"]
 [ext_resource type="PackedScene" path="res://scenes/saysanstes.tscn" id="3_saysanstes"]
 [ext_resource type="PackedScene" path="res://scenes/scene_exit.tscn" id="4_exit"]
+[ext_resource type="PackedScene" path="res://scenes/player_interface.tscn" id="5_interface"]
 
 [node name="Scene2" type="Node2D" unique_id=1016034043]
 
@@ -32,3 +33,5 @@ arrival_position = Vector2(1360, 0)
 position = Vector2(540, 0)
 destination_scene = "res://scenes/scene-3.tscn"
 enabled_on_start = false
+
+[node name="PlayerInterface" parent="." instance=ExtResource("5_interface")]

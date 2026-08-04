@@ -2,10 +2,17 @@ extends Label
 
 @export var player_path: NodePath
 
-@onready var player := get_node(player_path)
+var player: CharacterBody2D
 
 
 func _ready() -> void:
+	if player_path.is_empty():
+		player = get_tree().get_first_node_in_group("player") as CharacterBody2D
+	else:
+		player = get_node(player_path) as CharacterBody2D
+	if player == null:
+		push_error("LewHud could not find the player.")
+		return
 	player.lew_inventory_changed.connect(_update_text)
 	_update_text()
 
