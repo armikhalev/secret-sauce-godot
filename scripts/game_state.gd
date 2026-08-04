@@ -6,6 +6,7 @@ var carried_wo_count := 0
 var has_carried_inventory := false
 var arrival_position := Vector2.ZERO
 var has_arrival_position := false
+var saysanstes_state: Dictionary = {}
 
 
 func capture_player_inventory(player: Node) -> void:

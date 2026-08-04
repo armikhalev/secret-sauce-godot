@@ -20,6 +20,7 @@ position = Vector2(210, 80)
 [node name="Saysanstes" parent="." unique_id=563544967 instance=ExtResource("3_saysanstes")]
 position = Vector2(20, 120)
 next_area_door_path = NodePath("../DoorToScene3")
+persistent_state = true
 
 [node name="ExitToFirstArea" parent="." unique_id=829627764 instance=ExtResource("4_exit")]
 position = Vector2(-540, 0)

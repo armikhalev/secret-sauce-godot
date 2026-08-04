@@ -6,6 +6,7 @@ extends CharacterBody2D
 @export var requested_lew := 5
 @export var lie_aggression_increase := 25
 @export var next_area_door_path: NodePath
+@export var persistent_state := false
 
 var player: CharacterBody2D
 var question_answered := false
@@ -28,9 +29,11 @@ var demand_completed := false
 func _ready() -> void:
 	$ConversationRange.body_entered.connect(_on_conversation_range_entered)
 	$ConversationRange.body_exited.connect(_on_conversation_range_exited)
-	_react_to_saykwastes_death()
-	if not GameState.saykwastes_is_dead:
-		question_label.text = "wo aw mew e lew?"
+	var restored := _restore_persistent_state()
+	if not restored:
+		_react_to_saykwastes_death()
+		if not GameState.saykwastes_is_dead:
+			question_label.text = "wo aw mew e lew?"
 	_update_answer_selection()
 
 
@@ -74,6 +77,7 @@ func _answer_question(answered_yey: bool) -> void:
 			_start_lew_demand(false, false, 0, 5)
 		else:
 			_finish_living_saykwastes_wrong_answer()
+		_save_persistent_state()
 		return
 
 	if question_index == 0:
@@ -90,6 +94,7 @@ func _answer_question(answered_yey: bool) -> void:
 			selected_answer = 0
 			question_label.text = "saykwastes awgo ty paxasay?"
 			_update_answer_selection()
+			_save_persistent_state()
 	else:
 		question_answered = true
 		_finish_second_question(answered_yey)
@@ -143,6 +148,7 @@ func _start_lew_demand(
 	_update_demand_text()
 	$Dialogue/Panel.hide()
 	demand_label.show()
+	_save_persistent_state()
 
 
 func _deliver_requested_items() -> void:
@@ -164,6 +170,8 @@ func _deliver_requested_items() -> void:
 	_update_demand_text()
 	if lew_remaining <= 0 and wo_remaining <= 0:
 		_complete_demand()
+	else:
+		_save_persistent_state()
 
 
 func _complete_demand() -> void:
@@ -173,6 +181,55 @@ func _complete_demand() -> void:
 	respecting = clampi(respecting + 10, -100, 100)
 	greed = clampi(greed + 10, 0, 100)
 	aggression = clampi(aggression - 10, 0, 100)
+	_save_persistent_state()
+	var next_area_door := get_node_or_null(next_area_door_path)
+	if next_area_door != null and next_area_door.has_method("set_exit_enabled"):
+		next_area_door.set_exit_enabled(true)
+
+
+func _save_persistent_state() -> void:
+	if not persistent_state:
+		return
+	GameState.saysanstes_state = {
+		"respecting": respecting,
+		"greed": greed,
+		"aggression": aggression,
+		"question_answered": question_answered,
+		"question_index": question_index,
+		"lew_demand_started": lew_demand_started,
+		"lew_remaining": lew_remaining,
+		"wo_remaining": wo_remaining,
+		"reacted_to_saykwastes_death": reacted_to_saykwastes_death,
+		"demand_completed": demand_completed,
+	}
+
+
+func _restore_persistent_state() -> bool:
+	if not persistent_state or GameState.saysanstes_state.is_empty():
+		return false
+	var state := GameState.saysanstes_state
+	respecting = state.get("respecting", respecting)
+	greed = state.get("greed", greed)
+	aggression = state.get("aggression", aggression)
+	question_answered = state.get("question_answered", false)
+	question_index = state.get("question_index", 0)
+	lew_demand_started = state.get("lew_demand_started", false)
+	lew_remaining = state.get("lew_remaining", 0)
+	wo_remaining = state.get("wo_remaining", 0)
+	reacted_to_saykwastes_death = state.get("reacted_to_saykwastes_death", false)
+	demand_completed = state.get("demand_completed", false)
+	if lew_demand_started:
+		chosen_saypyastes = _choose_random_saypyastes()
+		$Dialogue/Panel.hide()
+		_update_demand_text()
+	elif question_index == 1 and not question_answered:
+		question_label.text = "saykwastes awgo ty paxasay?"
+	if demand_completed:
+		call_deferred("_restore_completed_door")
+	return true
+
+
+func _restore_completed_door() -> void:
 	var next_area_door := get_node_or_null(next_area_door_path)
 	if next_area_door != null and next_area_door.has_method("set_exit_enabled"):
 		next_area_door.set_exit_enabled(true)
