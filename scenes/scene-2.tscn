@@ -1,19 +1,33 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene format=3 uid="uid://b5qqxbr360fsj"]
 
 [ext_resource type="PackedScene" path="res://scenes/player.tscn" id="1_player"]
 [ext_resource type="PackedScene" path="res://scenes/saypyastes.tscn" id="2_saypyastes"]
 [ext_resource type="PackedScene" path="res://scenes/saysanstes.tscn" id="3_saysanstes"]
+[ext_resource type="PackedScene" path="res://scenes/scene_exit.tscn" id="4_exit"]
 
-[node name="Scene2" type="Node2D"]
+[node name="Scene2" type="Node2D" unique_id=1016034043]
 
-[node name="Player" parent="." instance=ExtResource("1_player")]
-position = Vector2(-260, 0)
+[node name="Player" parent="." unique_id=440126925 instance=ExtResource("1_player")]
+position = Vector2(-478, -3)
+rotation = 1.8622663
 
-[node name="Saypyastes" parent="." instance=ExtResource("2_saypyastes")]
+[node name="Saypyastes" parent="." unique_id=744995941 instance=ExtResource("2_saypyastes")]
 position = Vector2(80, -90)
 
-[node name="Saypyastes2" parent="." instance=ExtResource("2_saypyastes")]
+[node name="Saypyastes2" parent="." unique_id=1196124824 instance=ExtResource("2_saypyastes")]
 position = Vector2(210, 80)
 
-[node name="Saysanstes" parent="." instance=ExtResource("3_saysanstes")]
+[node name="Saysanstes" parent="." unique_id=563544967 instance=ExtResource("3_saysanstes")]
 position = Vector2(20, 120)
+next_area_door_path = NodePath("../DoorToScene3")
+
+[node name="ExitToFirstArea" parent="." unique_id=829627764 instance=ExtResource("4_exit")]
+position = Vector2(-540, 0)
+destination_scene = "res://scenes/game.tscn"
+override_arrival_position = true
+arrival_position = Vector2(1360, 0)
+
+[node name="DoorToScene3" parent="." unique_id=1624935633 instance=ExtResource("4_exit")]
+position = Vector2(540, 0)
+destination_scene = "res://scenes/scene-3.tscn"
+enabled_on_start = false

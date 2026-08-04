@@ -36,6 +36,7 @@ func _ready() -> void:
 	$Camera2D.zoom = Vector2.ONE * default_camera_zoom
 	$PoisonTimer.timeout.connect(_on_poison_timer_timeout)
 	GameState.restore_player_inventory(self)
+	GameState.restore_player_position(self)
 
 
 func _physics_process(delta: float) -> void:

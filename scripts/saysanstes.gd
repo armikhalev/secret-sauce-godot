@@ -5,6 +5,7 @@ extends CharacterBody2D
 @export_range(0, 100) var aggression := 75
 @export var requested_lew := 5
 @export var lie_aggression_increase := 25
+@export var next_area_door_path: NodePath
 
 var player: CharacterBody2D
 var question_answered := false
@@ -15,6 +16,7 @@ var chosen_saypyastes: Node
 var reacted_to_saykwastes_death := false
 var lew_demand_started := false
 var question_index := 0
+var demand_completed := false
 
 @onready var dialogue := $Dialogue
 @onready var yey_label := $Dialogue/Panel/Content/Answers/Yey
@@ -160,6 +162,20 @@ func _deliver_requested_items() -> void:
 		wo_remaining -= wo_delivery_count
 		player.wo_inventory_changed.emit()
 	_update_demand_text()
+	if lew_remaining <= 0 and wo_remaining <= 0:
+		_complete_demand()
+
+
+func _complete_demand() -> void:
+	if demand_completed:
+		return
+	demand_completed = true
+	respecting = clampi(respecting + 10, -100, 100)
+	greed = clampi(greed + 10, 0, 100)
+	aggression = clampi(aggression - 10, 0, 100)
+	var next_area_door := get_node_or_null(next_area_door_path)
+	if next_area_door != null and next_area_door.has_method("set_exit_enabled"):
+		next_area_door.set_exit_enabled(true)
 
 
 func _transfer_all_player_lew(recipient: Node) -> void:

@@ -43,6 +43,8 @@ func _ready() -> void:
 	home_position = global_position
 	$PoisonTimer.timeout.connect(_on_poison_tick)
 	_update_debug_stats()
+	if GameState.saykwastes_is_dead:
+		_die()
 
 
 func _physics_process(delta: float) -> void:
