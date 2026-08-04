@@ -23,6 +23,7 @@ var demand_completed := false
 @onready var yey_label := $Dialogue/Panel/Content/Answers/Yey
 @onready var no_label := $Dialogue/Panel/Content/Answers/No
 @onready var demand_label := $Dialogue/Demand
+@onready var give_hint := $Dialogue/GiveHint
 @onready var question_label := $Dialogue/Panel/Content/Question
 
 
@@ -38,7 +39,15 @@ func _ready() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if not dialogue.visible or question_answered:
+	if not dialogue.visible:
+		return
+	if question_answered:
+		if (
+			(lew_remaining > 0 or wo_remaining > 0)
+			and event.is_action_pressed("menu_accept")
+		):
+			_deliver_requested_items()
+			get_viewport().set_input_as_handled()
 		return
 	if event.is_action_pressed("menu_left") or event.is_action_pressed("menu_right"):
 		selected_answer = 1 - selected_answer
@@ -58,7 +67,6 @@ func _on_conversation_range_entered(body: Node2D) -> void:
 		_try_start_lew_demand()
 	if lew_remaining > 0 or wo_remaining > 0:
 		dialogue.show()
-		_deliver_requested_items()
 	if not question_answered:
 		dialogue.show()
 
@@ -274,3 +282,4 @@ func _update_demand_text() -> void:
 	elif wo_remaining > 0:
 		demand_label.text = "mi ma e (%d) wo" % wo_remaining
 	demand_label.visible = lew_remaining > 0 or wo_remaining > 0
+	give_hint.visible = demand_label.visible

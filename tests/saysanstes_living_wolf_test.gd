@@ -20,7 +20,10 @@ func _test_correct_answer() -> void:
 	assert(saysanstes.lew_remaining == 0 and saysanstes.wo_remaining == 5, "correct answer must request five wo")
 	assert(saysanstes.demand_label.text == "mi ma e pya (5) wo")
 	player.wo_inventory = 5
-	saysanstes._deliver_requested_items()
+	var give_event := InputEventAction.new()
+	give_event.action = "menu_accept"
+	give_event.pressed = true
+	saysanstes._unhandled_input(give_event)
 	assert(saysanstes.demand_completed, "delivering every requested item must complete the demand")
 	assert(saysanstes.respecting == 10, "completion must add 10 respecting")
 	assert(saysanstes.greed == 20, "completion must add 10 greed")
