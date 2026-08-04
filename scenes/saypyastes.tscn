@@ -8,6 +8,7 @@ points = PackedVector2Array(0, -48, 46, -15, 28, 40, -28, 40, -46, -15)
 [node name="Saypyastes" type="CharacterBody2D"]
 script = ExtResource("1_saypyastes")
 metadata/creature_form = "five-angle"
+metadata/npc_class = "gopnik"
 
 [node name="Body" type="Polygon2D" parent="."]
 polygon = PackedVector2Array(0, -48, 46, -15, 28, 40, -28, 40, -46, -15)

@@ -7,6 +7,7 @@ var has_carried_inventory := false
 var arrival_position := Vector2.ZERO
 var has_arrival_position := false
 var saysanstes_state: Dictionary = {}
+var carried_bravery_by_npc_class: Dictionary = {}
 
 
 func capture_player_inventory(player: Node) -> void:
@@ -14,6 +15,7 @@ func capture_player_inventory(player: Node) -> void:
 	for lew_data in player.lew_inventory:
 		carried_lew_states.append(lew_data.state)
 	carried_wo_count = player.wo_inventory
+	carried_bravery_by_npc_class = player.bravery_by_npc_class.duplicate()
 	has_carried_inventory = true
 
 
@@ -26,6 +28,7 @@ func restore_player_inventory(player: Node) -> void:
 		lew_data.state = state as LewData.State
 		player.lew_inventory.append(lew_data)
 	player.wo_inventory = carried_wo_count
+	player.bravery_by_npc_class = carried_bravery_by_npc_class.duplicate()
 	has_carried_inventory = false
 	player.lew_inventory_changed.emit()
 	player.wo_inventory_changed.emit()

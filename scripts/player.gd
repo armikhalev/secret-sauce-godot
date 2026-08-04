@@ -29,6 +29,11 @@ var is_dead := false
 var is_attacking := false
 var is_poisoned := false
 var poison_stacks := 0
+var bravery_by_npc_class: Dictionary = {
+	"predator": 0,
+	"herbivor": 0,
+	"gopnik": 0,
+}
 
 
 func _ready() -> void:
@@ -165,6 +170,23 @@ func get_minimum_camera_zoom() -> float:
 func change_bravery(amount: int, direction: bool) -> void:
 	bravery = clampi(bravery + amount, 0, 100) if direction else clampi(bravery - amount, 0, 100)
 	stats_changed.emit(bravery, vitality, energy, awareness)
+
+
+func change_bravery_for_npc_class(npc_class: StringName, amount: int, direction: bool) -> void:
+	if not bravery_by_npc_class.has(npc_class):
+		bravery_by_npc_class[npc_class] = 0
+	var current_value: int = bravery_by_npc_class[npc_class]
+	bravery_by_npc_class[npc_class] = (
+		clampi(current_value + amount, 0, 100)
+		if direction
+		else clampi(current_value - amount, 0, 100)
+	)
+	# Keep the existing general bravery stat for current UI and older mechanics.
+	change_bravery(amount, direction)
+
+
+func get_bravery_for_npc_class(npc_class: StringName) -> int:
+	return bravery_by_npc_class.get(npc_class, 0)
 
 
 func change_vitality(amount: int, direction: bool) -> void:

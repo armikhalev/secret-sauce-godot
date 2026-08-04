@@ -21,6 +21,8 @@ func _ready() -> void:
 	assert(saykwastes.bravery == 99, "saykwastes bravery must fall on the first hit")
 	assert(saykwastes.fear == 1, "saykwastes fear must rise on the first hit")
 	assert(player.bravery == 1, "player bravery must rise on the first hit")
+	assert(player.get_bravery_for_npc_class(&"predator") == 1, "hitting saykwastes must raise predator bravery")
+	assert(player.get_bravery_for_npc_class(&"herbivor") == 0, "predator bravery must not affect herbivor bravery")
 	assert(wo.vitality == 80, "a closer wo must not prevent saykwastes from being hit")
 	assert(saykwastes.get_roaming_radius() == 2090.0, "fear must reduce the roaming radius linearly")
 
@@ -29,6 +31,7 @@ func _ready() -> void:
 	assert(saykwastes.bravery == 98, "saykwastes bravery must fall on every completed hit")
 	assert(saykwastes.fear == 2, "saykwastes fear must rise on every completed hit")
 	assert(player.bravery == 2, "player bravery must rise on every completed hit")
+	assert(player.get_bravery_for_npc_class(&"predator") == 2, "predator bravery must track every saykwastes hit")
 	wo.receive_stick_hit(player, 60)
 	assert(player.wo_inventory == 1, "a wo killed by the player must enter the player's inventory")
 	for expected_delay in [[100, 1.0], [75, 2.0], [50, 3.0], [25, 4.0], [0, 5.0]]:

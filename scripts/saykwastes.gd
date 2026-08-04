@@ -247,8 +247,8 @@ func receive_stick_hit(attacker: Node, _damage: int) -> void:
 		return
 	fear = clampi(fear + 1, 0, 100)
 	bravery = clampi(bravery - 1, 0, 100)
-	if attacker.has_method("change_bravery"):
-		attacker.change_bravery(1, true)
+	if attacker.has_method("change_bravery_for_npc_class"):
+		attacker.change_bravery_for_npc_class(&"predator", 1, true)
 	_update_debug_stats()
 
 
