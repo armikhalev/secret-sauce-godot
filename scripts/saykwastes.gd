@@ -310,7 +310,9 @@ func _find_closest_offered_lew() -> Lew:
 func get_roaming_radius() -> float:
 	if fear <= 0:
 		return INF
-	return maxf(2100.0 - fear * 10.0, 0.0)
+	if fear <= 30:
+		return 2500.0 - fear * 50.0
+	return lerpf(1000.0, 500.0, float(fear - 30) / 70.0)
 
 
 func get_bravery_attack_delay() -> float:
