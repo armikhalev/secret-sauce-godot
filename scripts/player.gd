@@ -187,19 +187,19 @@ func _try_start_wall_rebound() -> void:
 	query.collide_with_areas = false
 	query.collide_with_bodies = true
 	var hit := get_world_2d().direct_space_state.intersect_ray(query)
-	if hit.is_empty() or not _is_wall_collider(hit.get("collider")):
+	if hit.is_empty() or not _is_rebound_surface(hit.get("collider")):
 		return
 	is_rebounding = true
 	rebound_direction = -forward
 
 
-func _is_wall_collider(collider: Object) -> bool:
+func _is_rebound_surface(collider: Object) -> bool:
 	if collider is TileMapLayer:
 		return true
 	return (
 		collider is CollisionObject2D
 		and collider.has_meta("obstacle_type")
-		and collider.get_meta("obstacle_type") == "wall"
+		and collider.get_meta("obstacle_type") in ["wall", "solid bush"]
 	)
 
 
