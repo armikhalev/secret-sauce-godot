@@ -28,6 +28,7 @@ var is_hidden := false
 var is_expanded_perception := false
 var is_dead := false
 var is_attacking := false
+var attack_button_held := false
 var is_poisoned := false
 var poison_stacks := 0
 var is_rebounding := false
@@ -58,6 +59,8 @@ func _physics_process(delta: float) -> void:
 			is_rebounding = false
 			rebound_direction = Vector2.ZERO
 			velocity = Vector2.ZERO
+			if attack_button_held:
+				call_deferred("_attack_with_stick")
 		return
 
 	var direction := Input.get_vector("move_left", "move_right", "move_up", "move_down")
@@ -87,9 +90,13 @@ func _process(delta: float) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_released("attack"):
+		attack_button_held = false
+		return
 	if is_dead or is_rebounding:
 		return
 	if event.is_action_pressed("attack"):
+		attack_button_held = true
 		_attack_with_stick()
 		get_viewport().set_input_as_handled()
 		return
@@ -136,6 +143,8 @@ func _attack_with_stick() -> void:
 	await tween.finished
 	attack_pivot.hide()
 	is_attacking = false
+	if attack_button_held and not is_dead and not is_rebounding:
+		call_deferred("_attack_with_stick")
 
 
 func _find_nearest_stick_target() -> Node2D:
