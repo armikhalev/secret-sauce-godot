@@ -184,8 +184,10 @@ func _deliver_requested_items() -> void:
 	if not is_instance_valid(player) or not is_instance_valid(chosen_saypyastes):
 		return
 	var delivery_count := mini(lew_remaining, player.lew_inventory.size())
+	var delivered_lew_states: Array[int] = []
 	for index in delivery_count:
 		var lew_data: LewData = player.lew_inventory.pop_back()
+		delivered_lew_states.append(lew_data.state)
 		chosen_saypyastes.receive_lew(lew_data)
 	lew_remaining -= delivery_count
 	if delivery_count > 0:
@@ -196,6 +198,7 @@ func _deliver_requested_items() -> void:
 		chosen_saypyastes.receive_wo(wo_delivery_count)
 		wo_remaining -= wo_delivery_count
 		player.wo_inventory_changed.emit()
+	_animate_goods_transfer(delivered_lew_states, wo_delivery_count, chosen_saypyastes)
 	_update_demand_text()
 	if lew_remaining <= 0 and wo_remaining <= 0:
 		_complete_demand()
@@ -265,18 +268,81 @@ func _restore_completed_door() -> void:
 
 
 func _transfer_all_player_lew(recipient: Node) -> void:
+	var transferred_states: Array[int] = []
 	while not player.lew_inventory.is_empty():
 		var lew_data: LewData = player.lew_inventory.pop_back()
+		transferred_states.append(lew_data.state)
 		recipient.receive_lew(lew_data)
 	player.lew_inventory_changed.emit()
+	_animate_goods_transfer(transferred_states, 0, recipient)
 
 
 func _transfer_all_player_wo(recipient: Node) -> void:
 	if player.wo_inventory <= 0:
 		return
-	recipient.receive_wo(player.wo_inventory)
+	var transferred_wo: int = player.wo_inventory
+	recipient.receive_wo(transferred_wo)
 	player.wo_inventory = 0
 	player.wo_inventory_changed.emit()
+	_animate_goods_transfer([], transferred_wo, recipient)
+
+
+func _animate_goods_transfer(lew_states: Array[int], wo_count: int, recipient: Node) -> void:
+	if not is_instance_valid(player) or not recipient is Node2D:
+		return
+	var recipient_2d := recipient as Node2D
+	var token_index := 0
+	for state in lew_states:
+		_launch_goods_token(_create_lew_token(state), recipient_2d.global_position, token_index)
+		token_index += 1
+	for index in wo_count:
+		_launch_goods_token(_create_wo_token(), recipient_2d.global_position, token_index)
+		token_index += 1
+
+
+func _launch_goods_token(token: Polygon2D, destination: Vector2, token_index: int) -> void:
+	get_tree().current_scene.add_child(token)
+	token.add_to_group("goods_transfer_animation")
+	var offset_angle := float(token_index) * 2.4
+	token.global_position = player.global_position + Vector2.RIGHT.rotated(offset_angle) * 12.0
+	token.z_index = 200
+	var tween := token.create_tween()
+	tween.tween_interval(float(token_index) * 0.045)
+	tween.tween_property(token, "global_position", destination, 0.55).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	tween.parallel().tween_property(token, "scale", Vector2.ONE * 0.25, 0.55)
+	tween.parallel().tween_property(token, "modulate", Color(1, 1, 1, 0.15), 0.55)
+	tween.tween_callback(token.queue_free)
+
+
+func _create_lew_token(state: int) -> Polygon2D:
+	var token := Polygon2D.new()
+	token.polygon = PackedVector2Array([
+		Vector2(-10, 8),
+		Vector2(-7, -7),
+		Vector2(-3, 3),
+		Vector2(0, -10),
+		Vector2(3, 3),
+		Vector2(8, -7),
+		Vector2(10, 8),
+	])
+	match state:
+		LewData.State.POISONOUS:
+			token.color = Color(0.55, 0.25, 0.68, 1.0)
+		LewData.State.TASTY:
+			token.color = Color(0.45, 0.82, 0.28, 1.0)
+		_:
+			token.color = Color(0.25, 0.65, 0.24, 1.0)
+	return token
+
+
+func _create_wo_token() -> Polygon2D:
+	var token := Polygon2D.new()
+	var points := PackedVector2Array()
+	for point_index in 16:
+		points.append(Vector2.RIGHT.rotated(TAU * float(point_index) / 16.0) * 11.0)
+	token.polygon = points
+	token.color = Color(0.77, 0.72, 0.63, 1.0)
+	return token
 
 
 func _choose_random_saypyastes() -> Node:

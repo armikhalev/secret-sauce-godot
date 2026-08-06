@@ -33,10 +33,13 @@ func _test_correct_answer() -> void:
 	give_event.action = "menu_accept"
 	give_event.pressed = true
 	saysanstes._unhandled_input(give_event)
+	assert(get_tree().get_nodes_in_group("goods_transfer_animation").size() >= 5, "delivered wo must visibly travel to saypyastes")
 	assert(saysanstes.demand_completed, "delivering every requested item must complete the demand")
 	assert(saysanstes.respecting == 10, "completion must add 10 respecting")
 	assert(saysanstes.greed == 20, "completion must add 10 greed")
 	assert(saysanstes.aggression == 65, "completion must remove 10 aggression")
+	await get_tree().create_timer(0.85).timeout
+	assert(get_tree().get_nodes_in_group("goods_transfer_animation").is_empty(), "goods transfer tokens must clean themselves up")
 	setup.root.queue_free()
 	await get_tree().process_frame
 
