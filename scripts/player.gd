@@ -219,7 +219,9 @@ func get_minimum_camera_zoom() -> float:
 
 
 func change_bravery(amount: int, direction: bool) -> void:
+	var previous_bravery := bravery
 	bravery = clampi(bravery + amount, 0, 100) if direction else clampi(bravery - amount, 0, 100)
+	_show_stat_loss(previous_bravery - bravery, "peysmafu")
 	stats_changed.emit(bravery, vitality, energy, awareness)
 
 
@@ -243,7 +245,9 @@ func get_bravery_for_npc_class(npc_class: StringName) -> int:
 func change_vitality(amount: int, direction: bool) -> void:
 	if is_dead:
 		return
+	var previous_vitality := vitality
 	vitality = clampi(vitality + amount, 0, 100) if direction else clampi(vitality - amount, 0, 100)
+	_show_stat_loss(previous_vitality - vitality, "moysew")
 	stats_changed.emit(bravery, vitality, energy, awareness)
 	if vitality <= 0:
 		_die()
@@ -264,17 +268,56 @@ func _die() -> void:
 
 
 func change_energy(amount: int, direction: bool) -> void:
+	var previous_energy := energy
 	energy = clampi(energy + amount, 0, 100) if direction else clampi(energy - amount, 0, 100)
+	_show_stat_loss(previous_energy - energy, "pasew")
 	stats_changed.emit(bravery, vitality, energy, awareness)
 
 
 func change_awareness(amount: int, direction: bool) -> void:
+	var previous_awareness := awareness
 	awareness = clampi(awareness + amount, 0, 100) if direction else clampi(awareness - amount, 0, 100)
+	_show_stat_loss(previous_awareness - awareness, "maysay")
 	var camera := $Camera2D as Camera2D
 	var clamped_zoom := maxf(camera.zoom.x, get_minimum_camera_zoom())
 	camera.zoom = Vector2.ONE * clamped_zoom
 	_update_perception_mode()
 	stats_changed.emit(bravery, vitality, energy, awareness)
+
+
+func _show_stat_loss(amount_lost: int, stat_name: String) -> void:
+	if amount_lost <= 0 or not is_inside_tree():
+		return
+	var bubble := PanelContainer.new()
+	bubble.add_to_group("stat_loss_bubble")
+	bubble.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	bubble.z_index = 250
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.12, 0.09, 0.06, 0.9)
+	style.border_color = Color(1.0, 0.88, 0.48, 0.95)
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(12)
+	style.content_margin_left = 12.0
+	style.content_margin_right = 12.0
+	style.content_margin_top = 6.0
+	style.content_margin_bottom = 6.0
+	bubble.add_theme_stylebox_override("panel", style)
+	var message := Label.new()
+	message.text = "-%d %s" % [amount_lost, stat_name]
+	message.add_theme_color_override("font_color", Color(1.0, 0.94, 0.7, 1.0))
+	message.add_theme_font_size_override("font_size", 20)
+	bubble.add_child(message)
+	var animation_root := get_tree().current_scene
+	if animation_root == null:
+		animation_root = get_tree().root
+	animation_root.add_child(bubble)
+	bubble.reset_size()
+	var start_position := global_position + Vector2(-bubble.size.x * 0.5, -58.0)
+	bubble.global_position = start_position
+	var tween := bubble.create_tween()
+	tween.tween_property(bubble, "global_position", start_position + Vector2(0, -82), 1.6).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tween.parallel().tween_property(bubble, "modulate", Color(1, 1, 1, 0), 1.0).set_delay(0.6)
+	tween.tween_callback(bubble.queue_free)
 
 
 func _update_perception_mode() -> void:
