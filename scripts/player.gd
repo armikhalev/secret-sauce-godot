@@ -28,6 +28,7 @@ var is_expanded_perception := false
 var is_dead := false
 var is_attacking := false
 var attack_button_held := false
+var circle_hit_unlocked := false
 var is_poisoned := false
 var poison_stacks := 0
 var is_rebounding := false
@@ -45,6 +46,7 @@ func _ready() -> void:
 	$PoisonTimer.timeout.connect(_on_poison_timer_timeout)
 	GameState.restore_player_inventory(self)
 	GameState.restore_player_position(self)
+	circle_hit_unlocked = GameState.circle_hit_unlocked
 
 
 func _physics_process(delta: float) -> void:
@@ -95,6 +97,8 @@ func _unhandled_input(event: InputEvent) -> void:
 	if is_dead or is_rebounding:
 		return
 	if event.is_action_pressed("attack"):
+		if not circle_hit_unlocked:
+			return
 		attack_button_held = true
 		_attack_with_circle()
 		get_viewport().set_input_as_handled()
@@ -112,7 +116,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _attack_with_circle() -> void:
-	if is_attacking:
+	if is_attacking or not circle_hit_unlocked:
 		return
 
 	is_attacking = true
@@ -133,6 +137,23 @@ func _attack_with_circle() -> void:
 	is_attacking = false
 	if attack_button_held and not is_dead and not is_rebounding:
 		call_deferred("_attack_with_circle")
+
+
+func unlock_circle_hit() -> void:
+	if circle_hit_unlocked:
+		return
+	circle_hit_unlocked = true
+	GameState.circle_hit_unlocked = true
+	var attack_pivot := $AttackPivot as Node2D
+	var attack_circle := $AttackPivot/Circle as Line2D
+	attack_circle.scale = Vector2.ONE * 0.72
+	attack_pivot.show()
+	var preview_tween := create_tween()
+	preview_tween.tween_property(attack_circle, "scale", Vector2.ONE, 0.5).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	preview_tween.tween_interval(0.5)
+	await preview_tween.finished
+	if not is_attacking:
+		attack_pivot.hide()
 
 
 func _find_attack_hitbox_targets() -> Array[Node2D]:

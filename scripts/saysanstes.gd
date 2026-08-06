@@ -18,6 +18,7 @@ var reacted_to_saykwastes_death := false
 var lew_demand_started := false
 var question_index := 0
 var demand_completed := false
+var ability_announcement_active := false
 
 @onready var dialogue := $Dialogue
 @onready var yey_label := $Dialogue/Panel/Content/Answers/Yey
@@ -42,6 +43,8 @@ func _unhandled_input(event: InputEvent) -> void:
 	if not dialogue.visible:
 		return
 	if question_answered:
+		if ability_announcement_active:
+			return
 		if (
 			(lew_remaining > 0 or wo_remaining > 0)
 			and event.is_action_pressed("menu_accept")
@@ -157,6 +160,24 @@ func _start_lew_demand(
 	$Dialogue/Panel.hide()
 	demand_label.show()
 	_save_persistent_state()
+	if wo_remaining > 0 and is_instance_valid(player) and not player.circle_hit_unlocked:
+		_grant_circle_hit_ability()
+
+
+func _grant_circle_hit_ability() -> void:
+	ability_announcement_active = true
+	player.unlock_circle_hit()
+	question_label.text = "tomoxoy!"
+	$Dialogue/Panel/Content/Answers.hide()
+	$Dialogue/Panel.show()
+	demand_label.hide()
+	give_hint.hide()
+	await get_tree().create_timer(1.0).timeout
+	if not is_inside_tree():
+		return
+	ability_announcement_active = false
+	$Dialogue/Panel.hide()
+	_update_demand_text()
 
 
 func _deliver_requested_items() -> void:

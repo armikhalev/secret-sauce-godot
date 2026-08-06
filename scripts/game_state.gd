@@ -8,6 +8,7 @@ var arrival_position := Vector2.ZERO
 var has_arrival_position := false
 var saysanstes_state: Dictionary = {}
 var carried_bravery_by_npc_class: Dictionary = {}
+var circle_hit_unlocked := false
 
 
 func capture_player_inventory(player: Node) -> void:

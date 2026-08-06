@@ -17,6 +17,7 @@ func _ready() -> void:
 	struck_bush.position = Vector2(200, -70)
 	bush_stopping_wall.position = Vector2(200, 180)
 	await get_tree().physics_frame
+	player.circle_hit_unlocked = true
 	await _verify_rebound(player, Vector2(-200, 0), "wall")
 	await get_tree().create_timer(0.15).timeout
 	await _verify_rebound(player, Vector2(200, 0), "solid bush")

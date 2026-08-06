@@ -15,6 +15,10 @@ func _ready() -> void:
 	wo.position = Vector2(55, 0)
 	saykwastes.position = Vector2(80, 0)
 	await get_tree().process_frame
+	player._attack_with_circle()
+	await get_tree().create_timer(0.3).timeout
+	assert(saykwastes.fear == 0, "circle attacks must be disabled before the ability is unlocked")
+	player.circle_hit_unlocked = true
 	assert(not player.has_node("AttackPivot/Stick"), "the old stick visual must be removed")
 	var attack_shape := player.get_node("AttackPivot/Hitbox/CollisionShape2D").shape as CircleShape2D
 	assert(attack_shape.radius == 34.0, "the attack circle must have a 68 px diameter")

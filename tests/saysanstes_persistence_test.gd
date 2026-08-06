@@ -4,6 +4,7 @@ extends Node
 func _ready() -> void:
 	GameState.saykwastes_is_dead = false
 	GameState.saysanstes_state.clear()
+	GameState.circle_hit_unlocked = true
 	var first := await _create_setup()
 	first.saysanstes._on_conversation_range_entered(first.player)
 	first.saysanstes._answer_question(true)
@@ -22,6 +23,7 @@ func _ready() -> void:
 	assert(restored.saysanstes.demand_label.visible, "returning must show the outstanding demand")
 	restored.root.queue_free()
 	GameState.saysanstes_state.clear()
+	GameState.circle_hit_unlocked = false
 	get_tree().quit(0)
 
 

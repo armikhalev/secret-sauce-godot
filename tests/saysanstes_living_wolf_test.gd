@@ -3,6 +3,7 @@ extends Node
 
 func _ready() -> void:
 	GameState.saykwastes_is_dead = false
+	GameState.circle_hit_unlocked = false
 	await _test_correct_answer()
 	await _test_wrong_answer()
 	get_tree().quit(0)
@@ -16,6 +17,14 @@ func _test_correct_answer() -> void:
 	saysanstes._on_conversation_range_entered(player)
 	assert(saysanstes.question_label.text == "wo aw mew e lew?", "living wolf must use the wo question")
 	saysanstes._answer_question(true)
+	assert(player.circle_hit_unlocked, "a wo demand must unlock the circle hit")
+	assert(saysanstes.question_label.text == "tomoxoy!", "Saysanstes must announce the new ability")
+	await get_tree().create_timer(1.05).timeout
+	var restored_player := (load("res://scenes/player.tscn") as PackedScene).instantiate()
+	setup.root.add_child(restored_player)
+	await get_tree().process_frame
+	assert(restored_player.circle_hit_unlocked, "the unlocked ability must persist on a new player")
+	restored_player.queue_free()
 	assert(player.wo_inventory == 2, "correct answer must not confiscate existing wo")
 	assert(saysanstes.lew_remaining == 0 and saysanstes.wo_remaining == 5, "correct answer must request five wo")
 	assert(saysanstes.demand_label.text == "mi ma e pya (5) wo")

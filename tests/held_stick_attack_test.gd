@@ -10,6 +10,7 @@ func _ready() -> void:
 	player.position = Vector2.ZERO
 	saykwastes.position = Vector2(70, 0)
 	await get_tree().process_frame
+	player.circle_hit_unlocked = true
 
 	var press := InputEventAction.new()
 	press.action = "attack"
