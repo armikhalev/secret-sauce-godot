@@ -13,6 +13,7 @@ func _test_correct_answer() -> void:
 	var setup := await _create_setup()
 	var player: Node = setup.player
 	var saysanstes: Node = setup.saysanstes
+	assert(saysanstes.has_node("LeftEye") and saysanstes.has_node("RightEye"), "Saysanstes must have two visible eyes")
 	player.wo_inventory = 2
 	saysanstes._on_conversation_range_entered(player)
 	assert(saysanstes.question_label.text == "wo aw mew e lew?", "living wolf must use the wo question")
@@ -35,11 +36,18 @@ func _test_correct_answer() -> void:
 	saysanstes._unhandled_input(give_event)
 	assert(get_tree().get_nodes_in_group("goods_transfer_animation").size() >= 5, "delivered wo must visibly travel to saypyastes")
 	assert(saysanstes.demand_completed, "delivering every requested item must complete the demand")
+	assert(saysanstes.question_label.text == "cepapyen", "Saysanstes must announce the opened door")
 	assert(saysanstes.respecting == 10, "completion must add 10 respecting")
 	assert(saysanstes.greed == 20, "completion must add 10 greed")
 	assert(saysanstes.aggression == 65, "completion must remove 10 aggression")
 	await get_tree().create_timer(0.85).timeout
+	assert(setup.door.visible, "completing the demand must reveal the next-area door")
+	var facing_direction := Vector2.UP.rotated(saysanstes.rotation)
+	var direction_to_door: Vector2 = saysanstes.global_position.direction_to(setup.door.global_position)
+	assert(facing_direction.dot(direction_to_door) > 0.999, "Saysanstes must turn to face the opened door")
 	assert(get_tree().get_nodes_in_group("goods_transfer_animation").is_empty(), "goods transfer tokens must clean themselves up")
+	await get_tree().create_timer(0.75).timeout
+	assert(not saysanstes.get_node("Dialogue/Panel").visible, "the door announcement must finish cleanly")
 	setup.root.queue_free()
 	await get_tree().process_frame
 
@@ -69,9 +77,15 @@ func _create_setup() -> Dictionary:
 	var saysanstes := (load("res://scenes/saysanstes.tscn") as PackedScene).instantiate()
 	var saypyastes_a := (load("res://scenes/saypyastes.tscn") as PackedScene).instantiate()
 	var saypyastes_b := (load("res://scenes/saypyastes.tscn") as PackedScene).instantiate()
+	var door := (load("res://scenes/scene_exit.tscn") as PackedScene).instantiate()
+	door.name = "Door"
+	door.position = Vector2(300, 0)
+	door.enabled_on_start = false
+	saysanstes.next_area_door_path = NodePath("../Door")
 	setup_root.add_child(player)
 	setup_root.add_child(saypyastes_a)
 	setup_root.add_child(saypyastes_b)
+	setup_root.add_child(door)
 	setup_root.add_child(saysanstes)
 	await get_tree().process_frame
 	return {
@@ -80,4 +94,5 @@ func _create_setup() -> Dictionary:
 		"saysanstes": saysanstes,
 		"saypyastes_a": saypyastes_a,
 		"saypyastes_b": saypyastes_b,
+		"door": door,
 	}

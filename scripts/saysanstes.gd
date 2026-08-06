@@ -217,6 +217,23 @@ func _complete_demand() -> void:
 	var next_area_door := get_node_or_null(next_area_door_path)
 	if next_area_door != null and next_area_door.has_method("set_exit_enabled"):
 		next_area_door.set_exit_enabled(true)
+		if next_area_door is Node2D:
+			_announce_open_door(next_area_door as Node2D)
+
+
+func _announce_open_door(door: Node2D) -> void:
+	question_label.text = "cepapyen"
+	$Dialogue/Panel/Content/Answers.hide()
+	demand_label.hide()
+	give_hint.hide()
+	$Dialogue/Panel.show()
+	dialogue.show()
+	var target_rotation: float = global_position.direction_to(door.global_position).angle() + PI / 2.0
+	var turn_tween := create_tween()
+	turn_tween.tween_property(self, "rotation", target_rotation, 0.45).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	await get_tree().create_timer(1.5).timeout
+	if is_inside_tree():
+		$Dialogue/Panel.hide()
 
 
 func _save_persistent_state() -> void:
