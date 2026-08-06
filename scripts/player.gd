@@ -16,7 +16,6 @@ signal perception_mode_changed(is_expanded: bool)
 @export var zoom_step: float = 0.1
 @export var default_camera_zoom: float = 2.0
 @export_group("Attack")
-@export var attack_range: float = 96.0
 @export var attack_damage: int = 20
 @export var attack_swing_duration: float = 0.24
 @export var wall_rebound_speed: float = 720.0
@@ -60,7 +59,7 @@ func _physics_process(delta: float) -> void:
 			rebound_direction = Vector2.ZERO
 			velocity = Vector2.ZERO
 			if attack_button_held:
-				call_deferred("_attack_with_stick")
+				call_deferred("_attack_with_circle")
 		return
 
 	var direction := Input.get_vector("move_left", "move_right", "move_up", "move_down")
@@ -97,7 +96,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if event.is_action_pressed("attack"):
 		attack_button_held = true
-		_attack_with_stick()
+		_attack_with_circle()
 		get_viewport().set_input_as_handled()
 		return
 
@@ -112,85 +111,68 @@ func _unhandled_input(event: InputEvent) -> void:
 		_change_camera_zoom(-zoom_step)
 
 
-func _attack_with_stick() -> void:
+func _attack_with_circle() -> void:
 	if is_attacking:
 		return
 
 	is_attacking = true
-	var target := _find_nearest_stick_target()
-	if is_instance_valid(target):
-		rotation = global_position.direction_to(target.global_position).angle() + PI / 2.0
 
 	var attack_pivot := $AttackPivot as Node2D
-	attack_pivot.rotation = -1.15
+	var attack_circle := $AttackPivot/Circle as Line2D
+	attack_circle.scale = Vector2.ONE * 0.72
 	attack_pivot.show()
 	var tween := create_tween()
-	tween.tween_property(attack_pivot, "rotation", 1.15, attack_swing_duration).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tween.tween_property(attack_circle, "scale", Vector2.ONE, attack_swing_duration).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	await get_tree().create_timer(attack_swing_duration * 0.5).timeout
-	var hit_targets := _find_stick_targets_in_range()
-	# Preserve a target acquired at swing start if it moved only a short distance
-	# during the wind-up (notably saykwastes retreating from the player).
-	if (
-		is_instance_valid(target)
-		and target.get("is_dead") != true
-		and global_position.distance_to(target.global_position) <= attack_range + 40.0
-		and not hit_targets.has(target)
-	):
-		hit_targets.append(target)
+	var hit_targets := _find_attack_hitbox_targets()
 	for hit_target in hit_targets:
-		hit_target.receive_stick_hit(self, attack_damage)
+		hit_target.receive_circle_hit(self, attack_damage)
 	_try_start_wall_rebound()
 	await tween.finished
 	attack_pivot.hide()
 	is_attacking = false
 	if attack_button_held and not is_dead and not is_rebounding:
-		call_deferred("_attack_with_stick")
+		call_deferred("_attack_with_circle")
 
 
-func _find_nearest_stick_target() -> Node2D:
-	var nearest: Node2D
-	var nearest_distance := attack_range
-	for group_name in ["wo", "saykwastes"]:
-		for node in get_tree().get_nodes_in_group(group_name):
-			if not node is Node2D or not node.has_method("receive_stick_hit"):
-				continue
-			if node.get("is_dead") == true:
-				continue
-			var distance := global_position.distance_to(node.global_position)
-			if distance <= nearest_distance:
-				nearest = node
-				nearest_distance = distance
-	return nearest
-
-
-func _find_stick_targets_in_range() -> Array[Node2D]:
+func _find_attack_hitbox_targets() -> Array[Node2D]:
 	var targets: Array[Node2D] = []
-	for group_name in ["wo", "saykwastes"]:
-		for node in get_tree().get_nodes_in_group(group_name):
-			if not node is Node2D or not node.has_method("receive_stick_hit"):
-				continue
-			if node.get("is_dead") == true:
-				continue
-			if global_position.distance_to(node.global_position) <= attack_range:
-				targets.append(node)
+	for node in $AttackPivot/Hitbox.get_overlapping_bodies():
+		if not node is Node2D or not node.has_method("receive_circle_hit"):
+			continue
+		if node.get("is_dead") == true:
+			continue
+		targets.append(node)
 	return targets
 
 
 func _try_start_wall_rebound() -> void:
-	var forward := Vector2.UP.rotated(rotation)
-	var query := PhysicsRayQueryParameters2D.create(
-		global_position,
-		global_position + forward * attack_range
-	)
-	query.exclude = [get_rid()]
-	query.collision_mask = collision_mask
-	query.collide_with_areas = false
-	query.collide_with_bodies = true
-	var hit := get_world_2d().direct_space_state.intersect_ray(query)
-	if hit.is_empty() or not _is_rebound_surface(hit.get("collider")):
+	var space_state := get_world_2d().direct_space_state
+	var closest_contact_distance := INF
+	var rebound_from_contact := Vector2.ZERO
+	for ray_index in 32:
+		var ray_direction := Vector2.RIGHT.rotated(TAU * float(ray_index) / 32.0)
+		var query := PhysicsRayQueryParameters2D.create(
+			global_position,
+			global_position + ray_direction * 38.0
+		)
+		query.exclude = [get_rid()]
+		query.collision_mask = collision_mask
+		query.collide_with_areas = false
+		query.collide_with_bodies = true
+		var hit := space_state.intersect_ray(query)
+		if hit.is_empty() or not _is_rebound_surface(hit.get("collider")):
+			continue
+		var contact_position: Vector2 = hit.get("position")
+		var contact_distance := global_position.distance_to(contact_position)
+		if contact_distance >= closest_contact_distance:
+			continue
+		closest_contact_distance = contact_distance
+		rebound_from_contact = contact_position.direction_to(global_position)
+	if rebound_from_contact.is_zero_approx():
 		return
 	is_rebounding = true
-	rebound_direction = -forward
+	rebound_direction = rebound_from_contact
 
 
 func _is_rebound_surface(collider: Object) -> bool:

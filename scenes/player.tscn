@@ -1,10 +1,13 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scripts/player.gd" id="1_player"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_player"]
 radius = 14.0
 height = 36.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_attack"]
+radius = 34.0
 
 [node name="Player" type="CharacterBody2D"]
 script = ExtResource("1_player")
@@ -26,12 +29,20 @@ color = Color(1, 0.91, 0.58, 1)
 [node name="AttackPivot" type="Node2D" parent="."]
 visible = false
 
-[node name="Stick" type="Line2D" parent="AttackPivot"]
-points = PackedVector2Array(0, -14, 0, -82)
+[node name="Circle" type="Line2D" parent="AttackPivot"]
+points = PackedVector2Array(34, 0, 32.84, 8.8, 29.44, 17, 24.04, 24.04, 17, 29.44, 8.8, 32.84, 0, 34, -8.8, 32.84, -17, 29.44, -24.04, 24.04, -29.44, 17, -32.84, 8.8, -34, 0, -32.84, -8.8, -29.44, -17, -24.04, -24.04, -17, -29.44, -8.8, -32.84, 0, -34, 8.8, -32.84, 17, -29.44, 24.04, -24.04, 29.44, -17, 32.84, -8.8, 34, 0)
 width = 7.0
-default_color = Color(0.42, 0.22, 0.08, 1)
+default_color = Color(1, 0.95, 0.68, 1)
+joint_mode = 1
 begin_cap_mode = 2
 end_cap_mode = 2
+
+[node name="Hitbox" type="Area2D" parent="AttackPivot"]
+collision_layer = 0
+collision_mask = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AttackPivot/Hitbox"]
+shape = SubResource("CircleShape2D_attack")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CapsuleShape2D_player")

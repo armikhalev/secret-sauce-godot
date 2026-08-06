@@ -242,7 +242,7 @@ func receive_push(push_motion: Vector2) -> void:
 		global_position += push_motion
 
 
-func receive_stick_hit(attacker: Node, _damage: int) -> void:
+func receive_circle_hit(attacker: Node, _damage: int) -> void:
 	if is_dead:
 		return
 	fear = clampi(fear + 1, 0, 100)

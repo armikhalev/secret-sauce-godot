@@ -148,7 +148,7 @@ func receive_attack(damage: int, attacker: Node = null) -> void:
 		_die(true, attacker)
 
 
-func receive_stick_hit(attacker: Node, damage: int) -> void:
+func receive_circle_hit(attacker: Node, damage: int) -> void:
 	receive_attack(damage, attacker)
 
 

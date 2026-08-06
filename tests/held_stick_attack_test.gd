@@ -16,7 +16,7 @@ func _ready() -> void:
 	press.pressed = true
 	player._unhandled_input(press)
 	await get_tree().create_timer(0.85).timeout
-	assert(saykwastes.fear >= 3, "holding attack must produce consecutive stick strikes")
+	assert(saykwastes.fear >= 3, "holding attack must produce consecutive circle strikes")
 
 	var release := InputEventAction.new()
 	release.action = "attack"

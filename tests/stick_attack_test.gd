@@ -15,8 +15,11 @@ func _ready() -> void:
 	wo.position = Vector2(55, 0)
 	saykwastes.position = Vector2(80, 0)
 	await get_tree().process_frame
+	assert(not player.has_node("AttackPivot/Stick"), "the old stick visual must be removed")
+	var attack_shape := player.get_node("AttackPivot/Hitbox/CollisionShape2D").shape as CircleShape2D
+	assert(attack_shape.radius == 34.0, "the attack circle must have a 68 px diameter")
 
-	player._attack_with_stick()
+	player._attack_with_circle()
 	await get_tree().create_timer(0.4).timeout
 	assert(saykwastes.bravery == 99, "saykwastes bravery must fall on the first hit")
 	assert(saykwastes.fear == 1, "saykwastes fear must rise on the first hit")
@@ -26,13 +29,13 @@ func _ready() -> void:
 	assert(wo.vitality == 80, "a closer wo must not prevent saykwastes from being hit")
 	assert(saykwastes.get_roaming_radius() == 2450.0, "the first fear point must begin restricting roaming")
 
-	player._attack_with_stick()
+	player._attack_with_circle()
 	await get_tree().create_timer(0.4).timeout
 	assert(saykwastes.bravery == 98, "saykwastes bravery must fall on every completed hit")
 	assert(saykwastes.fear == 2, "saykwastes fear must rise on every completed hit")
 	assert(player.bravery == 2, "player bravery must rise on every completed hit")
 	assert(player.get_bravery_for_npc_class(&"predator") == 2, "predator bravery must track every saykwastes hit")
-	wo.receive_stick_hit(player, 60)
+	wo.receive_circle_hit(player, 60)
 	assert(player.wo_inventory == 1, "a wo killed by the player must enter the player's inventory")
 	for expected_delay in [[100, 1.0], [75, 2.0], [50, 3.0], [25, 4.0], [0, 5.0]]:
 		saykwastes.bravery = expected_delay[0]
