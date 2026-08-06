@@ -9,6 +9,7 @@ var has_arrival_position := false
 var saysanstes_state: Dictionary = {}
 var carried_bravery_by_npc_class: Dictionary = {}
 var circle_hit_unlocked := false
+var big_wo_circle_hit_removed := false
 
 
 func capture_player_inventory(player: Node) -> void:

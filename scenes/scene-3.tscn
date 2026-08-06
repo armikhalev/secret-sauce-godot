@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/player.tscn" id="1_player"]
 [ext_resource type="PackedScene" path="res://scenes/player_interface.tscn" id="2_interface"]
 [ext_resource type="PackedScene" path="res://scenes/scene_exit.tscn" id="3_exit"]
+[ext_resource type="PackedScene" path="res://scenes/big_wo.tscn" id="4_big_wo"]
 
 [node name="Scene3" type="Node2D"]
 
@@ -10,6 +11,8 @@
 position = Vector2(-260, 0)
 
 [node name="PlayerInterface" parent="." instance=ExtResource("2_interface")]
+
+[node name="BigWo" parent="." instance=ExtResource("4_big_wo")]
 
 [node name="DoorToScene2" parent="." instance=ExtResource("3_exit")]
 position = Vector2(-540, 0)
