@@ -22,7 +22,8 @@ theme_override_colors/font_color = Color(1, 0.91, 0.68, 1)
 theme_override_font_sizes/font_size = 24
 text = "SAWSUM LI NONPESA
 [I] koyto
-lew 0"
+lew 0
+wo 0"
 vertical_alignment = 2
 script = ExtResource("2_lew_hud")
 
