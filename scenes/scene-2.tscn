@@ -33,5 +33,7 @@ arrival_position = Vector2(1360, 0)
 position = Vector2(540, 0)
 destination_scene = "res://scenes/scene-3.tscn"
 enabled_on_start = false
+override_arrival_position = true
+arrival_position = Vector2(-460, 0)
 
 [node name="PlayerInterface" parent="." instance=ExtResource("5_interface")]
