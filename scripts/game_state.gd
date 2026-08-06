@@ -10,6 +10,7 @@ var saysanstes_state: Dictionary = {}
 var carried_bravery_by_npc_class: Dictionary = {}
 var circle_hit_unlocked := false
 var big_wo_circle_hit_removed := false
+var saykwastes_state: Dictionary = {}
 
 
 func capture_player_inventory(player: Node) -> void:

@@ -34,6 +34,7 @@ var aggression_by_target: Dictionary[int, int] = {}
 var home_position := Vector2.ZERO
 var has_seen_player := false
 var last_seen_player_position := Vector2.ZERO
+var player_relationship_id := 0
 
 @onready var navigation_agent: NavigationAgent2D = $NavigationAgent2D
 
@@ -42,9 +43,16 @@ func _ready() -> void:
 	add_to_group("saykwastes")
 	home_position = global_position
 	$PoisonTimer.timeout.connect(_on_poison_tick)
+	_restore_persistent_state()
 	_update_debug_stats()
 	if GameState.saykwastes_is_dead:
 		_die()
+	elif is_poisoned:
+		$PoisonTimer.start()
+
+
+func _exit_tree() -> void:
+	_save_persistent_state()
 
 
 func _physics_process(delta: float) -> void:
@@ -198,6 +206,7 @@ func eat_lew(lew: Lew) -> void:
 		_die()
 
 	_update_debug_stats()
+	_save_persistent_state()
 	lew.remove_from_world()
 
 
@@ -218,6 +227,7 @@ func change_trust_toward(target: Node, amount: int) -> void:
 	if target.is_in_group("player"):
 		trust = trust_by_target[target_id]
 		_update_debug_stats()
+		_save_persistent_state()
 
 
 func set_aggression_toward(target: Node, amount: int) -> void:
@@ -227,10 +237,13 @@ func set_aggression_toward(target: Node, amount: int) -> void:
 	if target.is_in_group("player"):
 		aggression = aggression_by_target[target_id]
 		_update_debug_stats()
+		_save_persistent_state()
 
 
 func _ensure_relationship(target: Node) -> void:
 	var target_id := target.get_instance_id()
+	if target.is_in_group("player"):
+		player_relationship_id = target_id
 	if not trust_by_target.has(target_id):
 		trust_by_target[target_id] = trust if target.is_in_group("player") else 0
 	if not aggression_by_target.has(target_id):
@@ -250,6 +263,7 @@ func receive_circle_hit(attacker: Node, _damage: int) -> void:
 	if attacker.has_method("change_bravery_for_npc_class"):
 		attacker.change_bravery_for_npc_class(&"predator", 1, true)
 	_update_debug_stats()
+	_save_persistent_state()
 
 
 func _start_poisoning() -> void:
@@ -267,6 +281,7 @@ func _on_poison_tick() -> void:
 
 	vitality = clampi(vitality - poison_tick_damage, 0, 100)
 	_update_debug_stats()
+	_save_persistent_state()
 
 	if vitality <= 0:
 		_die()
@@ -285,6 +300,39 @@ func _die() -> void:
 	$Body.color = Color(0.09, 0.1, 0.11, 1.0)
 	$Label.text = "moxoy"
 	_update_debug_stats()
+	_save_persistent_state()
+
+
+func _save_persistent_state() -> void:
+	var player_trust := trust
+	var player_aggression := aggression
+	if player_relationship_id != 0:
+		if trust_by_target.has(player_relationship_id):
+			player_trust = trust_by_target[player_relationship_id]
+		if aggression_by_target.has(player_relationship_id):
+			player_aggression = aggression_by_target[player_relationship_id]
+	GameState.saykwastes_state = {
+		"bravery": bravery,
+		"vitality": vitality,
+		"hunger": hunger,
+		"aggression": player_aggression,
+		"trust": player_trust,
+		"fear": fear,
+		"is_poisoned": is_poisoned,
+	}
+
+
+func _restore_persistent_state() -> void:
+	if GameState.saykwastes_state.is_empty():
+		return
+	var state := GameState.saykwastes_state
+	bravery = state.get("bravery", bravery)
+	vitality = state.get("vitality", vitality)
+	hunger = state.get("hunger", hunger)
+	aggression = state.get("aggression", aggression)
+	trust = state.get("trust", trust)
+	fear = state.get("fear", fear)
+	is_poisoned = state.get("is_poisoned", false)
 
 
 func _find_closest_offered_lew() -> Lew:
