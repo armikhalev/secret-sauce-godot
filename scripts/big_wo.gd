@@ -110,7 +110,7 @@ func _start_lew_encounter() -> void:
 
 
 func _spawn_encounter_lew(spawn_index: int) -> void:
-	var lew := GIANT_WO_LEW_SCENE.instantiate() as Area2D
+	var lew := GIANT_WO_LEW_SCENE.instantiate() as CharacterBody2D
 	var angle := TAU * float(spawn_index) / float(encounter_lew_count)
 	lew.global_position = global_position + Vector2.RIGHT.rotated(angle) * encounter_spawn_radius
 	get_tree().current_scene.add_child(lew)

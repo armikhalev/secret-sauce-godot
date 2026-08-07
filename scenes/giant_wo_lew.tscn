@@ -5,9 +5,9 @@
 [sub_resource type="CircleShape2D" id="1"]
 radius = 18.0
 
-[node name="GiantWoLew" type="Area2D"]
+[node name="GiantWoLew" type="CharacterBody2D"]
 collision_layer = 0
-collision_mask = 0
+collision_mask = 1
 script = ExtResource("1")
 metadata/creature_type = "eyed lew pursuer"
 

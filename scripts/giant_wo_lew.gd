@@ -1,4 +1,4 @@
-extends Area2D
+extends CharacterBody2D
 
 @export var chase_speed := 235.0
 @export var damage := 1
@@ -28,6 +28,7 @@ func _physics_process(delta: float) -> void:
 	if distance_to_player <= damage_distance and damage_cooldown <= 0.0:
 		player.change_vitality(damage, false)
 		damage_cooldown = damage_interval
-	global_position = global_position.move_toward(player.global_position, chase_speed * delta)
-	if global_position.distance_to(player.global_position) > 1.0:
-		rotation = global_position.direction_to(player.global_position).angle() + PI / 2.0
+	velocity = global_position.direction_to(player.global_position) * chase_speed
+	move_and_slide()
+	if not velocity.is_zero_approx():
+		rotation = velocity.angle() + PI / 2.0
