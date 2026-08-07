@@ -4,7 +4,7 @@ extends Node
 @export var living_saykwastes_limit: int = 2
 @export var dead_saykwastes_limit: int = 10
 @export var spawn_interval: float = 5.0
-@export var killed_respawn_delay: float = 20.0
+@export var killed_respawn_delay: float = 15.0
 @export var spawn_radius: float = 620.0
 
 var spawn_timer: Timer
