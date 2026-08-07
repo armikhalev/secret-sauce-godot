@@ -2,7 +2,7 @@ extends Area2D
 
 const GIANT_WO_LEW_SCENE := preload("res://scenes/giant_wo_lew.tscn")
 
-@export var encounter_lew_count := 10
+@export var encounter_lew_count := 100
 @export var encounter_spawn_interval := 1.0
 @export var mouth_capture_radius := 105.0
 @export var encounter_spawn_radius := 440.0

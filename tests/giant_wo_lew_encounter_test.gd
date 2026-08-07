@@ -5,14 +5,17 @@ func _ready() -> void:
 	GameState.big_wo_circle_hit_removed = true
 	var player := (load("res://scenes/player.tscn") as PackedScene).instantiate()
 	var big_wo := (load("res://scenes/big_wo.tscn") as PackedScene).instantiate()
-	big_wo.encounter_spawn_interval = 0.05
+	big_wo.encounter_spawn_interval = 0.001
 	add_child(player)
 	add_child(big_wo)
 	player.global_position = Vector2(900, 0)
-	await get_tree().create_timer(0.6).timeout
+	for frame in 120:
+		await get_tree().process_frame
+		if big_wo.encounter_spawned == 100:
+			break
 	var pursuers := get_tree().get_nodes_in_group("giant_wo_lew")
-	assert(pursuers.size() == 10, "the encounter must spawn exactly ten eyed lew")
-	assert(big_wo.encounter_spawned == 10, "all ten lew must spawn one interval apart")
+	assert(pursuers.size() == 100, "the encounter must spawn exactly one hundred eyed lew")
+	assert(big_wo.encounter_spawned == 100, "all one hundred lew must spawn one interval apart")
 	var pursuer := pursuers[0] as Node2D
 	for other_pursuer in pursuers:
 		if other_pursuer != pursuer:
