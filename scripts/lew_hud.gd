@@ -15,6 +15,9 @@ func _ready() -> void:
 		return
 	player.lew_inventory_changed.connect(_update_text)
 	player.wo_inventory_changed.connect(_update_text)
+	var inventory_menu := get_node_or_null("../../InventoryMenu")
+	if inventory_menu != null and inventory_menu.has_signal("menu_visibility_changed"):
+		inventory_menu.menu_visibility_changed.connect(_on_menu_visibility_changed)
 	_apply_background()
 	_update_text()
 
@@ -32,6 +35,10 @@ func _update_text() -> void:
 func _append_item_count(lines: Array[String], item_name: String, count: int) -> void:
 	if count > 0:
 		lines.append("%s %d" % [item_name, count])
+
+
+func _on_menu_visibility_changed(is_open: bool) -> void:
+	get_parent().visible = not is_open
 
 
 func _apply_background() -> void:

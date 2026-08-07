@@ -12,6 +12,11 @@ func _ready() -> void:
 	var panel := interface.get_node("MarginContainer") as PanelContainer
 	var panel_style := panel.get_theme_stylebox("panel") as StyleBoxFlat
 	assert(panel_style.bg_color.a > 0.0 and panel_style.bg_color.a < 1.0, "HUD must use a semi-transparent background")
+	var inventory_menu := interface.get_node("InventoryMenu")
+	inventory_menu.set_menu_open(true)
+	assert(not panel.visible, "HUD must hide while the inventory menu is open")
+	inventory_menu.set_menu_open(false)
+	assert(panel.visible, "HUD must return when the inventory menu closes")
 	player.collect_lew(LewData.new())
 	player.collect_wo()
 	player.collect_wo()

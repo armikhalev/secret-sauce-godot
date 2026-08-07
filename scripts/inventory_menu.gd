@@ -1,5 +1,7 @@
 extends Control
 
+signal menu_visibility_changed(is_open: bool)
+
 @export var player_path: NodePath
 
 @onready var item_list: VBoxContainer = %ItemList
@@ -56,6 +58,7 @@ func _input(event: InputEvent) -> void:
 
 func set_menu_open(open: bool) -> void:
 	visible = open
+	menu_visibility_changed.emit(open)
 
 	if open:
 		rebuild_item_list()
