@@ -3,6 +3,9 @@ extends Node
 
 func _ready() -> void:
 	GameState.big_wo_circle_hit_removed = false
+	GameState.circle_hit_unlocked = false
+	GameState.owned_charms.clear()
+	GameState.equipped_charms.clear()
 	var player := (load("res://scenes/player.tscn") as PackedScene).instantiate()
 	var big_wo := (load("res://scenes/big_wo.tscn") as PackedScene).instantiate()
 	add_child(player)
@@ -37,7 +40,15 @@ func _ready() -> void:
 	big_wo._unhandled_input(accept)
 	assert(big_wo.circle_hit_removed, "confirming moy must remove the embedded circle-hit")
 	assert(GameState.big_wo_circle_hit_removed, "removing the circle-hit must persist")
+	assert(player.has_charm(player.CIRCLE_HIT_CHARM), "moy must grant the base circle-hit charm")
+	assert(player.has_charm(player.CIRCLE_HIT_UPGRADE_CHARM), "moy must grant the circle-hit upgrade charm")
+	assert(player.get_used_charm_notches() == 1, "only one charm notch may be occupied")
+	assert(player.is_charm_equipped(player.CIRCLE_HIT_CHARM), "the newly granted base charm must be installed")
+	assert(player.owned_charms.count(player.CIRCLE_HIT_CHARM) == 1, "the base charm must never duplicate")
 	await get_tree().create_timer(0.75).timeout
 	assert(not is_instance_valid(big_wo.embedded_circle), "the removed circle-hit must animate into the player and disappear")
 	GameState.big_wo_circle_hit_removed = false
+	GameState.circle_hit_unlocked = false
+	GameState.owned_charms.clear()
+	GameState.equipped_charms.clear()
 	get_tree().quit(0)

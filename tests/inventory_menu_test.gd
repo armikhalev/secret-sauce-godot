@@ -76,11 +76,32 @@ func _run() -> void:
 		quit(1)
 		return
 
+	player.grant_charm(player.CIRCLE_HIT_CHARM)
+	player.toggle_charm(player.CIRCLE_HIT_CHARM)
+	player.grant_charm(player.CIRCLE_HIT_UPGRADE_CHARM)
+	menu.rebuild_item_list()
+	if player.get_used_charm_notches() != 1 or menu.selectable_kinds.count("charm") != 2:
+		push_error("The menu did not show both charms and the single occupied notch.")
+		quit(1)
+		return
+	menu._select_item(menu.selectable_kinds.find("charm"))
+	menu._drop_selected_item()
+	if player.is_charm_equipped(player.CIRCLE_HIT_CHARM):
+		push_error("Selecting an installed charm did not remove it from the notch.")
+		quit(1)
+		return
+	menu._select_item(menu.selectable_data.find(player.CIRCLE_HIT_UPGRADE_CHARM))
+	menu._drop_selected_item()
+	if not player.is_charm_equipped(player.CIRCLE_HIT_UPGRADE_CHARM) or player.get_used_charm_notches() != 1:
+		push_error("The upgrade charm could not be installed into the one notch.")
+		quit(1)
+		return
+
 	menu.set_menu_open(false)
 	if menu.visible:
 		push_error("Inventory menu did not close correctly.")
 		quit(1)
 		return
 
-	print("Lew inventory menu verified.")
+	print("Lew inventory and charm menu verified.")
 	quit()

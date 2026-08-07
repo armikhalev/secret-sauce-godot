@@ -9,6 +9,8 @@ var has_arrival_position := false
 var saysanstes_state: Dictionary = {}
 var carried_bravery_by_npc_class: Dictionary = {}
 var circle_hit_unlocked := false
+var owned_charms: Array[String] = []
+var equipped_charms: Array[String] = []
 var big_wo_circle_hit_removed := false
 var saykwastes_state: Dictionary = {}
 

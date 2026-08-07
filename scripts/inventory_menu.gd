@@ -10,6 +10,9 @@ signal menu_visibility_changed(is_open: bool)
 
 var player: CharacterBody2D
 var state_selectors: Array[OptionButton] = []
+var selectable_controls: Array[Control] = []
+var selectable_kinds: Array[String] = []
+var selectable_data: Array = []
 var selected_item_index := 0
 
 
@@ -24,6 +27,7 @@ func _ready() -> void:
 		return
 	player.lew_inventory_changed.connect(_on_inventory_changed)
 	player.wo_inventory_changed.connect(_on_inventory_changed)
+	player.charms_changed.connect(_on_inventory_changed)
 	player.stats_changed.connect(_on_player_stats_changed)
 	_update_player_stats()
 	hide()
@@ -67,10 +71,17 @@ func set_menu_open(open: bool) -> void:
 
 func rebuild_item_list() -> void:
 	state_selectors.clear()
+	selectable_controls.clear()
+	selectable_kinds.clear()
+	selectable_data.clear()
 	for child in item_list.get_children():
 		child.queue_free()
 
-	empty_label.visible = player.lew_inventory.is_empty() and player.wo_inventory <= 0
+	empty_label.visible = (
+		player.lew_inventory.is_empty()
+		and player.wo_inventory <= 0
+		and player.owned_charms.is_empty()
+	)
 
 	for index in player.lew_inventory.size():
 		var row := HBoxContainer.new()
@@ -91,6 +102,9 @@ func rebuild_item_list() -> void:
 		row.add_child(state_selector)
 		item_list.add_child(row)
 		state_selectors.append(state_selector)
+		selectable_controls.append(state_selector)
+		selectable_kinds.append("lew")
+		selectable_data.append(index)
 
 	if player.wo_inventory > 0:
 		var wo_label := Label.new()
@@ -98,8 +112,22 @@ func rebuild_item_list() -> void:
 		wo_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		item_list.add_child(wo_label)
 
-	if not state_selectors.is_empty():
-		_select_item(clampi(selected_item_index, 0, state_selectors.size() - 1))
+	if not player.owned_charms.is_empty():
+		var notch_label := Label.new()
+		notch_label.text = "◇ %d/%d" % [player.get_used_charm_notches(), player.charm_notches]
+		notch_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		item_list.add_child(notch_label)
+		for charm_id in player.owned_charms:
+			var charm_label := Label.new()
+			charm_label.text = "%s %s" % ["◆" if player.is_charm_equipped(charm_id) else "◇", charm_id]
+			charm_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			item_list.add_child(charm_label)
+			selectable_controls.append(charm_label)
+			selectable_kinds.append("charm")
+			selectable_data.append(charm_id)
+
+	if not selectable_controls.is_empty():
+		_select_item(clampi(selected_item_index, 0, selectable_controls.size() - 1))
 
 
 func _on_state_selected(selected_index: int, inventory_index: int) -> void:
@@ -123,35 +151,42 @@ func _update_player_stats() -> void:
 
 
 func _select_item(index: int) -> void:
-	if state_selectors.is_empty():
+	if selectable_controls.is_empty():
 		selected_item_index = 0
 		return
 
-	selected_item_index = posmod(index, state_selectors.size())
-	for selector_index in state_selectors.size():
-		state_selectors[selector_index].modulate = (
+	selected_item_index = posmod(index, selectable_controls.size())
+	for selector_index in selectable_controls.size():
+		selectable_controls[selector_index].modulate = (
 			Color(1.0, 0.9, 0.45) if selector_index == selected_item_index else Color.WHITE
 		)
 
 
 func _change_selected_state(direction: int) -> void:
-	if state_selectors.is_empty():
+	if selectable_controls.is_empty() or selectable_kinds[selected_item_index] != "lew":
 		return
 
-	var selector := state_selectors[selected_item_index]
+	var selector := selectable_controls[selected_item_index] as OptionButton
+	var inventory_index: int = selectable_data[selected_item_index]
 	var state_count := selector.item_count
 	var new_state := posmod(selector.selected + direction, state_count)
 	selector.select(new_state)
-	player.set_lew_state(selected_item_index, new_state as LewData.State)
+	player.set_lew_state(inventory_index, new_state as LewData.State)
 
 
 func _drop_selected_item() -> void:
+	if selectable_controls.is_empty():
+		return
+	if selectable_kinds[selected_item_index] == "charm":
+		player.toggle_charm(selectable_data[selected_item_index])
+		rebuild_item_list()
+		return
 	if player.lew_inventory.is_empty():
 		return
 
 	var forward := Vector2.UP.rotated(player.rotation)
 	var drop_position := player.global_position + forward * 96.0
-	player.drop_lew(selected_item_index, drop_position)
+	player.drop_lew(selectable_data[selected_item_index], drop_position)
 
 	if player.lew_inventory.is_empty():
 		selected_item_index = 0
@@ -160,9 +195,13 @@ func _drop_selected_item() -> void:
 
 
 func _eat_selected_item() -> void:
-	if player.lew_inventory.is_empty():
+	if (
+		selectable_controls.is_empty()
+		or selectable_kinds[selected_item_index] != "lew"
+		or player.lew_inventory.is_empty()
+	):
 		return
-	player.eat_lew(selected_item_index)
+	player.eat_lew(selectable_data[selected_item_index])
 	if player.lew_inventory.is_empty():
 		selected_item_index = 0
 	else:

@@ -58,6 +58,9 @@ func _remove_circle_hit() -> void:
 		return
 	circle_hit_removed = true
 	GameState.big_wo_circle_hit_removed = true
+	if not player.has_charm(player.CIRCLE_HIT_CHARM):
+		player.unlock_circle_hit()
+	player.grant_charm(player.CIRCLE_HIT_UPGRADE_CHARM)
 	dialogue.hide()
 	$LeftTear.hide()
 	$RightTear.hide()

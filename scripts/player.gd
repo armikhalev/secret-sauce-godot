@@ -3,7 +3,11 @@ extends CharacterBody2D
 signal stats_changed(bravery: int, vitality: int, energy: int, awareness: int)
 signal lew_inventory_changed
 signal wo_inventory_changed
+signal charms_changed
 signal perception_mode_changed(is_expanded: bool)
+
+const CIRCLE_HIT_CHARM := "circle-hit"
+const CIRCLE_HIT_UPGRADE_CHARM := "circle-hit +"
 
 @export var move_speed: float = 260.0
 @export_group("Stats")
@@ -19,6 +23,7 @@ signal perception_mode_changed(is_expanded: bool)
 @export var attack_damage: int = 20
 @export var attack_swing_duration: float = 0.24
 @export var wall_rebound_speed: float = 720.0
+@export var charm_notches := 1
 
 var lew_inventory: Array[LewData] = []
 var wo_inventory := 0
@@ -29,6 +34,8 @@ var is_dead := false
 var is_attacking := false
 var attack_button_held := false
 var circle_hit_unlocked := false
+var owned_charms: Array[String] = []
+var equipped_charms: Array[String] = []
 var is_poisoned := false
 var poison_stacks := 0
 var is_rebounding := false
@@ -46,7 +53,17 @@ func _ready() -> void:
 	$PoisonTimer.timeout.connect(_on_poison_timer_timeout)
 	GameState.restore_player_inventory(self)
 	GameState.restore_player_position(self)
-	circle_hit_unlocked = GameState.circle_hit_unlocked
+	owned_charms.assign(GameState.owned_charms)
+	equipped_charms.assign(GameState.equipped_charms)
+	# Migrate the old persistent ability flag into the charm system.
+	var migrated_circle_hit := false
+	if GameState.circle_hit_unlocked and not has_charm(CIRCLE_HIT_CHARM):
+		owned_charms.append(CIRCLE_HIT_CHARM)
+		migrated_circle_hit = true
+	if migrated_circle_hit and equipped_charms.is_empty():
+		equipped_charms.append(CIRCLE_HIT_CHARM)
+	circle_hit_unlocked = has_charm(CIRCLE_HIT_CHARM)
+	_save_charms()
 
 
 func _physics_process(delta: float) -> void:
@@ -97,7 +114,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if is_dead or is_rebounding:
 		return
 	if event.is_action_pressed("attack"):
-		if not circle_hit_unlocked:
+		if not is_charm_equipped(CIRCLE_HIT_CHARM):
 			return
 		attack_button_held = true
 		_attack_with_circle()
@@ -116,7 +133,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _attack_with_circle() -> void:
-	if is_attacking or not circle_hit_unlocked:
+	if is_attacking or not is_charm_equipped(CIRCLE_HIT_CHARM):
 		return
 
 	is_attacking = true
@@ -140,10 +157,12 @@ func _attack_with_circle() -> void:
 
 
 func unlock_circle_hit() -> void:
-	if circle_hit_unlocked:
+	if not grant_charm(CIRCLE_HIT_CHARM):
 		return
-	circle_hit_unlocked = true
-	GameState.circle_hit_unlocked = true
+	if get_used_charm_notches() < charm_notches:
+		equipped_charms.append(CIRCLE_HIT_CHARM)
+		_save_charms()
+		charms_changed.emit()
 	var attack_pivot := $AttackPivot as Node2D
 	var attack_circle := $AttackPivot/Circle as Line2D
 	attack_circle.scale = Vector2.ONE * 0.72
@@ -154,6 +173,49 @@ func unlock_circle_hit() -> void:
 	await preview_tween.finished
 	if not is_attacking:
 		attack_pivot.hide()
+
+
+func grant_charm(charm_id: String) -> bool:
+	if has_charm(charm_id):
+		return false
+	owned_charms.append(charm_id)
+	if charm_id == CIRCLE_HIT_CHARM:
+		circle_hit_unlocked = true
+		GameState.circle_hit_unlocked = true
+	_save_charms()
+	charms_changed.emit()
+	return true
+
+
+func has_charm(charm_id: String) -> bool:
+	return charm_id in owned_charms
+
+
+func is_charm_equipped(charm_id: String) -> bool:
+	return charm_id in equipped_charms
+
+
+func toggle_charm(charm_id: String) -> bool:
+	if not has_charm(charm_id):
+		return false
+	if is_charm_equipped(charm_id):
+		equipped_charms.erase(charm_id)
+	else:
+		if get_used_charm_notches() >= charm_notches:
+			return false
+		equipped_charms.append(charm_id)
+	_save_charms()
+	charms_changed.emit()
+	return true
+
+
+func get_used_charm_notches() -> int:
+	return equipped_charms.size()
+
+
+func _save_charms() -> void:
+	GameState.owned_charms.assign(owned_charms)
+	GameState.equipped_charms.assign(equipped_charms)
 
 
 func _find_attack_hitbox_targets() -> Array[Node2D]:

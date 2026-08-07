@@ -10,7 +10,8 @@ func _ready() -> void:
 	player.position = Vector2.ZERO
 	saykwastes.position = Vector2(70, 0)
 	await get_tree().process_frame
-	player.circle_hit_unlocked = true
+	player.grant_charm(player.CIRCLE_HIT_CHARM)
+	player.toggle_charm(player.CIRCLE_HIT_CHARM)
 
 	var press := InputEventAction.new()
 	press.action = "attack"
