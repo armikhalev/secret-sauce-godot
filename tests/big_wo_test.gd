@@ -45,6 +45,13 @@ func _ready() -> void:
 	assert(player.get_used_charm_notches() == 1, "only one charm notch may be occupied")
 	assert(player.is_charm_equipped(player.CIRCLE_HIT_CHARM), "the newly granted base charm must be installed")
 	assert(player.owned_charms.count(player.CIRCLE_HIT_CHARM) == 1, "the base charm must never duplicate")
+	assert(big_wo.lew_mouth.visible, "removing the circle-hit must turn the mouth into a giant lew outline")
+	assert(big_wo.encounter_spawned == 1, "the first eyed lew must appear immediately")
+	var spawned_lew := get_tree().get_first_node_in_group("giant_wo_lew") as Node2D
+	assert(is_instance_valid(spawned_lew), "the encounter must spawn eyed lew pursuers")
+	spawned_lew.global_position = big_wo.lew_mouth.global_position
+	await get_tree().physics_frame
+	assert(big_wo.encounter_consumed == 1, "leading an eyed lew into the mouth must consume it")
 	await get_tree().create_timer(0.75).timeout
 	assert(not is_instance_valid(big_wo.embedded_circle), "the removed circle-hit must animate into the player and disappear")
 	GameState.big_wo_circle_hit_removed = false
