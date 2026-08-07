@@ -26,6 +26,24 @@ func _initialize() -> void:
 		quit(1)
 		return
 
+	var circle_uses_circle := false
+	for event in InputMap.action_get_events("circle_hit"):
+		if event is InputEventJoypadButton and event.button_index == 1:
+			circle_uses_circle = true
+	if not circle_uses_circle:
+		push_error("Circle-hit is not mapped to PS5 Circle.")
+		quit(1)
+		return
+
+	var magnet_uses_square := false
+	for event in InputMap.action_get_events("magnet_back"):
+		if event is InputEventJoypadButton and event.button_index == 2:
+			magnet_uses_square = true
+	if not magnet_uses_square:
+		push_error("Magnet-back is not mapped to PS5 Square.")
+		quit(1)
+		return
+
 	for action in ["zoom_in", "zoom_out"]:
 		var has_right_y_axis := false
 		var has_mouse_wheel := false

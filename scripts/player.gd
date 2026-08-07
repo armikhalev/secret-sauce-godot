@@ -26,6 +26,7 @@ const MAGNET_BACK_CHARM := "magnet-back"
 @export var magnet_back_speed: float = 900.0
 @export var magnet_search_distance: float = 4000.0
 @export var charm_notches := 1
+@export var grant_test_magnet_back_on_start := false
 
 var lew_inventory: Array[LewData] = []
 var wo_inventory := 0
@@ -45,6 +46,7 @@ var rebound_direction := Vector2.ZERO
 var is_magnetizing_back := false
 var magnet_back_direction := Vector2.ZERO
 var magnet_back_distance_left := 0.0
+var magnet_pull_tween: Tween
 var bravery_by_npc_class: Dictionary = {
 	"predator": 0,
 	"herbivor": 0,
@@ -68,6 +70,9 @@ func _ready() -> void:
 	if migrated_circle_hit and equipped_charms.is_empty():
 		equipped_charms.append(CIRCLE_HIT_CHARM)
 	circle_hit_unlocked = has_charm(CIRCLE_HIT_CHARM)
+	if grant_test_magnet_back_on_start and grant_charm(MAGNET_BACK_CHARM):
+		if get_used_charm_notches() < charm_notches:
+			equipped_charms.append(MAGNET_BACK_CHARM)
 	_save_charms()
 
 
@@ -120,19 +125,22 @@ func _process(delta: float) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_released("attack"):
+	if event.is_action_released("circle_hit"):
 		attack_button_held = false
 		return
 	if is_dead or is_rebounding or is_magnetizing_back:
 		return
-	if event.is_action_pressed("attack"):
-		if not is_charm_equipped(CIRCLE_HIT_CHARM) and not is_charm_equipped(MAGNET_BACK_CHARM):
+	if event.is_action_pressed("circle_hit"):
+		if not is_charm_equipped(CIRCLE_HIT_CHARM):
 			return
-		if is_charm_equipped(CIRCLE_HIT_CHARM):
-			attack_button_held = true
-			_attack_with_circle()
-		else:
-			_start_magnet_back()
+		attack_button_held = true
+		_attack_with_circle()
+		get_viewport().set_input_as_handled()
+		return
+	if event.is_action_pressed("magnet_back"):
+		if not is_charm_equipped(MAGNET_BACK_CHARM):
+			return
+		_start_magnet_back()
 		get_viewport().set_input_as_handled()
 		return
 
@@ -177,24 +185,21 @@ func _start_magnet_back() -> void:
 	if is_dead or is_magnetizing_back or is_rebounding:
 		return
 	var backward := Vector2.DOWN.rotated(rotation).normalized()
-	var query := PhysicsRayQueryParameters2D.create(
-		global_position,
-		global_position + backward * magnet_search_distance
-	)
-	query.exclude = [get_rid()]
-	query.collision_mask = collision_mask
-	query.collide_with_areas = false
-	query.collide_with_bodies = true
-	var hit := get_world_2d().direct_space_state.intersect_ray(query)
-	if hit.is_empty():
-		return
 	magnet_back_direction = backward
-	magnet_back_distance_left = global_position.distance_to(hit.position)
+	magnet_back_distance_left = magnet_search_distance
 	is_magnetizing_back = true
 	velocity = magnet_back_direction * magnet_back_speed
+	$MagnetPull.show()
+	$MagnetPull.scale = Vector2(0.75, 0.45)
+	magnet_pull_tween = create_tween().set_loops()
+	magnet_pull_tween.tween_property($MagnetPull, "scale", Vector2(1.05, 1.35), 0.16).set_trans(Tween.TRANS_SINE)
+	magnet_pull_tween.tween_property($MagnetPull, "scale", Vector2(0.75, 0.45), 0.16).set_trans(Tween.TRANS_SINE)
 
 
 func _stop_magnet_back() -> void:
+	if magnet_pull_tween != null and magnet_pull_tween.is_valid():
+		magnet_pull_tween.kill()
+	$MagnetPull.hide()
 	is_magnetizing_back = false
 	magnet_back_direction = Vector2.ZERO
 	magnet_back_distance_left = 0.0

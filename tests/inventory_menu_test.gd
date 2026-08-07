@@ -13,12 +13,20 @@ func _run() -> void:
 
 	var player = game.get_node("World/Entities/Player")
 	var menu = game.get_node("UI/InventoryMenu")
+	if not player.has_charm(player.MAGNET_BACK_CHARM) or not player.is_charm_equipped(player.MAGNET_BACK_CHARM):
+		push_error("A fresh game did not start with magnet-back visible and installed for testing.")
+		quit(1)
+		return
 	game.get_node("World/Entities/NPCs/Wo").queue_free()
 	game.get_node("World/Items/Lew").queue_free()
 	var item := LewData.new()
 	player.collect_lew(item)
 	player.collect_lew(LewData.new())
 	menu.set_menu_open(true)
+	if player.MAGNET_BACK_CHARM not in menu.selectable_data:
+		push_error("The starting magnet-back charm did not appear in the inventory menu.")
+		quit(1)
+		return
 
 	if not menu.visible:
 		push_error("Inventory menu did not open correctly.")
@@ -76,6 +84,8 @@ func _run() -> void:
 		quit(1)
 		return
 
+	if player.is_charm_equipped(player.MAGNET_BACK_CHARM):
+		player.toggle_charm(player.MAGNET_BACK_CHARM)
 	player.grant_charm(player.CIRCLE_HIT_CHARM)
 	player.toggle_charm(player.CIRCLE_HIT_CHARM)
 	player.grant_charm(player.MAGNET_BACK_CHARM)
@@ -84,7 +94,7 @@ func _run() -> void:
 		push_error("The menu did not show both charms and the single occupied notch.")
 		quit(1)
 		return
-	menu._select_item(menu.selectable_kinds.find("charm"))
+	menu._select_item(menu.selectable_data.find(player.CIRCLE_HIT_CHARM))
 	menu._drop_selected_item()
 	if player.is_charm_equipped(player.CIRCLE_HIT_CHARM):
 		push_error("Selecting an installed charm did not remove it from the notch.")

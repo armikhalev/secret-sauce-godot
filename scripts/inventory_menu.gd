@@ -179,7 +179,6 @@ func _drop_selected_item() -> void:
 		return
 	if selectable_kinds[selected_item_index] == "charm":
 		player.toggle_charm(selectable_data[selected_item_index])
-		rebuild_item_list()
 		return
 	if player.lew_inventory.is_empty():
 		return

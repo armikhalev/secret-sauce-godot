@@ -1329,6 +1329,7 @@ position = Vector2(-260, 180)
 position = Vector2(260, 180)
 
 [node name="Player" parent="World/Entities" unique_id=873471165 instance=ExtResource("1_player")]
+grant_test_magnet_back_on_start = true
 
 [node name="Items" type="Node2D" parent="World" unique_id=1148796590]
 

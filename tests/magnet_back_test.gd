@@ -16,10 +16,11 @@ func _ready() -> void:
 	player.grant_charm(player.MAGNET_BACK_CHARM)
 	player.toggle_charm(player.MAGNET_BACK_CHARM)
 	var attack := InputEventAction.new()
-	attack.action = "attack"
+	attack.action = "magnet_back"
 	attack.pressed = true
 	player._unhandled_input(attack)
 	assert(player.is_magnetizing_back, "the equipped magnet-back charm must activate on attack")
+	assert(player.get_node("MagnetPull").visible, "magnet-back must animate the rear of the player")
 	for frame in 90:
 		await get_tree().physics_frame
 		if not player.is_magnetizing_back:
@@ -27,6 +28,7 @@ func _ready() -> void:
 	assert(player.position.y > 200.0, "magnet-back must pull the triangle along its rear axis")
 	assert(player.position.y < wall.position.y, "magnet-back must stop against the first obstacle")
 	assert(not player.is_magnetizing_back and player.velocity == Vector2.ZERO)
+	assert(not player.get_node("MagnetPull").visible, "the rear pull animation must stop with the movement")
 	GameState.owned_charms.clear()
 	GameState.equipped_charms.clear()
 	get_tree().quit(0)

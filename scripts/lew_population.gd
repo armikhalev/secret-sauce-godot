@@ -3,7 +3,7 @@ extends Node
 @export var item_container_path: NodePath
 @export var spawn_points_path: NodePath
 @export var population_limit: int = 4
-@export var spawn_interval: float = 30.0
+@export var spawn_interval: float = 15.0
 
 var spawn_timer: Timer
 var eternal_spawn_slot_id := -1
