@@ -132,11 +132,47 @@ func _die(was_killed_by_player: bool, killer: Node = null) -> void:
 	is_dead = true
 	velocity = Vector2.ZERO
 	remove_from_group("wo")
+	_show_moxoy_bubble()
 	if was_killed_by_player:
 		if is_instance_valid(killer) and killer.has_method("collect_wo"):
 			killer.collect_wo()
 		killed_by_player.emit(global_position)
 	queue_free()
+
+
+func _show_moxoy_bubble() -> void:
+	if not is_inside_tree():
+		return
+	var bubble := PanelContainer.new()
+	bubble.add_to_group("wo_death_bubble")
+	bubble.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	bubble.z_index = 250
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.12, 0.09, 0.06, 0.9)
+	style.border_color = Color(1.0, 0.88, 0.48, 0.95)
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(12)
+	style.content_margin_left = 12.0
+	style.content_margin_right = 12.0
+	style.content_margin_top = 6.0
+	style.content_margin_bottom = 6.0
+	bubble.add_theme_stylebox_override("panel", style)
+	var message := Label.new()
+	message.text = "moxoy"
+	message.add_theme_color_override("font_color", Color(1.0, 0.94, 0.7, 1.0))
+	message.add_theme_font_size_override("font_size", 20)
+	bubble.add_child(message)
+	var animation_root := get_tree().current_scene
+	if animation_root == null:
+		animation_root = get_tree().root
+	animation_root.add_child(bubble)
+	bubble.reset_size()
+	var start_position := global_position + Vector2(-bubble.size.x * 0.5, -58.0)
+	bubble.global_position = start_position
+	var tween := bubble.create_tween()
+	tween.tween_property(bubble, "global_position", start_position + Vector2(0, -82), 1.6).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tween.parallel().tween_property(bubble, "modulate", Color(1, 1, 1, 0), 1.0).set_delay(0.6)
+	tween.tween_callback(bubble.queue_free)
 
 
 func receive_attack(damage: int, attacker: Node = null) -> void:
