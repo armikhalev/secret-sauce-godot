@@ -117,7 +117,7 @@ func _on_player_stats_changed(_bravery: int, _vitality: int, _energy: int, _awar
 
 func _update_player_stats() -> void:
 	player_stats_label.text = (
-		"PEYSMAFU\n%d / 100\n\nMOYSEW\n%d / 100\n\nPASEW\n%d / 100\n\nMAYSAY\n%d / 100"
+		"PEYSMAFU\n%d / 100\n\nMOY\n%d / 100\n\nPASEW\n%d / 100\n\nMAYSAY\n%d / 100"
 		% [player.bravery, player.vitality, player.energy, player.awareness]
 	)
 

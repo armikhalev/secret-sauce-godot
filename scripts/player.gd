@@ -247,7 +247,7 @@ func change_vitality(amount: int, direction: bool) -> void:
 		return
 	var previous_vitality := vitality
 	vitality = clampi(vitality + amount, 0, 100) if direction else clampi(vitality - amount, 0, 100)
-	_show_stat_loss(previous_vitality - vitality, "moysew")
+	_show_stat_loss(previous_vitality - vitality, "moy")
 	stats_changed.emit(bravery, vitality, energy, awareness)
 	if vitality <= 0:
 		_die()

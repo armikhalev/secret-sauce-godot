@@ -370,6 +370,6 @@ func get_bravery_attack_delay() -> float:
 func _update_debug_stats() -> void:
 	var roaming_radius_text := "∞" if is_inf(get_roaming_radius()) else str(roundi(get_roaming_radius()))
 	$DebugStats.text = (
-		"peysmafu %d  moysew %d\nmamew %d  datmuy %d\nsagawtaw %d  mafu %d  radius %s"
+		"peysmafu %d  moy %d\nmamew %d  datmuy %d\nsagawtaw %d  mafu %d  radius %s"
 		% [bravery, vitality, hunger, aggression, trust, fear, roaming_radius_text]
 	)

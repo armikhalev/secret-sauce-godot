@@ -10,7 +10,7 @@ func _ready() -> void:
 	assert(bubbles.size() == 1, "losing a stat must create one feedback bubble")
 	var bubble := bubbles[0] as PanelContainer
 	var message := bubble.get_child(0) as Label
-	assert(message.text == "-25 moysew", "the bubble must show the actual loss and full Mela stat name")
+	assert(message.text == "-25 moy", "the bubble must show the actual loss and full Mela stat name")
 	var initial_y := bubble.global_position.y
 	await get_tree().create_timer(0.8).timeout
 	assert(bubble.global_position.y < initial_y, "the stat-loss bubble must float upward")

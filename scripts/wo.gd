@@ -217,6 +217,6 @@ func _find_closest_lew() -> Lew:
 
 func _update_debug_stats() -> void:
 	$DebugStats.text = (
-		"peysmafu %d  moysew %d\nmamew %d  datmuy %d\nsagawtaw %d  mafu %d"
+		"peysmafu %d  moy %d\nmamew %d  datmuy %d\nsagawtaw %d  mafu %d"
 		% [bravery, vitality, hunger, aggression, trust, fear]
 	)
