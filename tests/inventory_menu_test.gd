@@ -78,7 +78,7 @@ func _run() -> void:
 
 	player.grant_charm(player.CIRCLE_HIT_CHARM)
 	player.toggle_charm(player.CIRCLE_HIT_CHARM)
-	player.grant_charm(player.CIRCLE_HIT_UPGRADE_CHARM)
+	player.grant_charm(player.MAGNET_BACK_CHARM)
 	menu.rebuild_item_list()
 	if player.get_used_charm_notches() != 1 or menu.selectable_kinds.count("charm") != 2:
 		push_error("The menu did not show both charms and the single occupied notch.")
@@ -90,10 +90,10 @@ func _run() -> void:
 		push_error("Selecting an installed charm did not remove it from the notch.")
 		quit(1)
 		return
-	menu._select_item(menu.selectable_data.find(player.CIRCLE_HIT_UPGRADE_CHARM))
+	menu._select_item(menu.selectable_data.find(player.MAGNET_BACK_CHARM))
 	menu._drop_selected_item()
-	if not player.is_charm_equipped(player.CIRCLE_HIT_UPGRADE_CHARM) or player.get_used_charm_notches() != 1:
-		push_error("The upgrade charm could not be installed into the one notch.")
+	if not player.is_charm_equipped(player.MAGNET_BACK_CHARM) or player.get_used_charm_notches() != 1:
+		push_error("The magnet-back charm could not be installed into the one notch.")
 		quit(1)
 		return
 

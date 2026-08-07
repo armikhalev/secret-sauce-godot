@@ -41,7 +41,7 @@ func _ready() -> void:
 	assert(big_wo.circle_hit_removed, "confirming moy must remove the embedded circle-hit")
 	assert(GameState.big_wo_circle_hit_removed, "removing the circle-hit must persist")
 	assert(player.has_charm(player.CIRCLE_HIT_CHARM), "moy must grant the base circle-hit charm")
-	assert(player.has_charm(player.CIRCLE_HIT_UPGRADE_CHARM), "moy must grant the circle-hit upgrade charm")
+	assert(player.has_charm(player.MAGNET_BACK_CHARM), "moy must grant the separate magnet-back charm")
 	assert(player.get_used_charm_notches() == 1, "only one charm notch may be occupied")
 	assert(player.is_charm_equipped(player.CIRCLE_HIT_CHARM), "the newly granted base charm must be installed")
 	assert(player.owned_charms.count(player.CIRCLE_HIT_CHARM) == 1, "the base charm must never duplicate")
