@@ -10,6 +10,7 @@ func _ready() -> void:
 	add_child(wall)
 	player.position = Vector2(180, 0)
 	pursuer.position = Vector2(-100, 0)
+	pursuer.activated = true
 	wall.position = Vector2.ZERO
 	wall.rotation = PI / 2.0
 	for frame in 90:

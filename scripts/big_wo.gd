@@ -6,6 +6,7 @@ const GIANT_WO_LEW_SCENE := preload("res://scenes/giant_wo_lew.tscn")
 @export var encounter_spawn_interval := 1.0
 @export var mouth_capture_radius := 105.0
 @export var encounter_spawn_radius := 440.0
+@export var hostile_lew_spawn_points_path: NodePath
 
 var player: CharacterBody2D
 var selected_answer := 0
@@ -113,8 +114,13 @@ func _start_lew_encounter() -> void:
 
 func _spawn_encounter_lew(spawn_index: int) -> void:
 	var lew := GIANT_WO_LEW_SCENE.instantiate() as CharacterBody2D
-	var angle := TAU * float(spawn_index) / float(encounter_lew_count)
-	lew.global_position = global_position + Vector2.RIGHT.rotated(angle) * encounter_spawn_radius
+	var spawn_points := get_node_or_null(hostile_lew_spawn_points_path)
+	if spawn_points != null and spawn_points.get_child_count() > 0:
+		var marker := spawn_points.get_child(spawn_index % spawn_points.get_child_count()) as Node2D
+		lew.global_position = marker.global_position
+	else:
+		var angle := TAU * float(spawn_index) / float(encounter_lew_count)
+		lew.global_position = global_position + Vector2.RIGHT.rotated(angle) * encounter_spawn_radius
 	get_tree().current_scene.add_child(lew)
 
 

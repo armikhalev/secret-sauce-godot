@@ -14,6 +14,21 @@ position = Vector2(-470, 0)
 [node name="PlayerInterface" parent="." unique_id=689812053 instance=ExtResource("2_interface")]
 
 [node name="BigWo" parent="." unique_id=409598696 instance=ExtResource("4_big_wo")]
+hostile_lew_spawn_points_path = NodePath("../HostileLewSpawnPoints")
+
+[node name="HostileLewSpawnPoints" type="Node2D" parent="." unique_id=275251219]
+
+[node name="Point1" type="Marker2D" parent="HostileLewSpawnPoints" unique_id=903168838]
+position = Vector2(-792, -588)
+
+[node name="Point2" type="Marker2D" parent="HostileLewSpawnPoints" unique_id=782775689]
+position = Vector2(817, -495)
+
+[node name="Point3" type="Marker2D" parent="HostileLewSpawnPoints" unique_id=1532179967]
+position = Vector2(-687, 269)
+
+[node name="Point4" type="Marker2D" parent="HostileLewSpawnPoints" unique_id=1867056634]
+position = Vector2(-318, 258)
 
 [node name="DoorToScene2" parent="." unique_id=1873825087 instance=ExtResource("3_exit")]
 position = Vector2(-540, 0)

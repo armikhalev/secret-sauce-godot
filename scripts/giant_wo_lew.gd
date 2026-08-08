@@ -4,10 +4,12 @@ extends CharacterBody2D
 @export var damage := 1
 @export var damage_distance := 34.0
 @export var damage_interval := 1.0
+@export var activation_radius := 100.0
 
 var player: CharacterBody2D
 var mouth: Node2D
 var damage_cooldown := 0.0
+var activated := false
 
 
 func _ready() -> void:
@@ -20,6 +22,11 @@ func _physics_process(delta: float) -> void:
 	if not is_instance_valid(player):
 		player = get_tree().get_first_node_in_group("player") as CharacterBody2D
 		return
+	if not activated:
+		velocity = Vector2.ZERO
+		if global_position.distance_to(player.global_position) > activation_radius:
+			return
+		activated = true
 	if is_instance_valid(mouth) and mouth.has_method("contains_lew") and mouth.contains_lew(self):
 		mouth.consume_lew(self)
 		return

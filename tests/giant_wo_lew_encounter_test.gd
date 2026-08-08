@@ -8,10 +8,19 @@ func _ready() -> void:
 	var big_wo := (load("res://scenes/big_wo.tscn") as PackedScene).instantiate()
 	var left_exit := (load("res://scenes/scene_exit.tscn") as PackedScene).instantiate()
 	var right_exit := (load("res://scenes/scene_exit.tscn") as PackedScene).instantiate()
+	var spawn_points := Node2D.new()
+	spawn_points.name = "SpawnPoints"
+	var expected_spawn_positions := [Vector2(-700, -400), Vector2(700, -400), Vector2(-700, 400), Vector2(700, 400)]
+	for expected_position in expected_spawn_positions:
+		var marker := Marker2D.new()
+		marker.position = expected_position
+		spawn_points.add_child(marker)
 	big_wo.encounter_spawn_interval = 0.001
+	big_wo.hostile_lew_spawn_points_path = NodePath("../SpawnPoints")
 	add_child(player)
 	add_child(left_exit)
 	add_child(right_exit)
+	add_child(spawn_points)
 	add_child(big_wo)
 	player.global_position = Vector2(900, 0)
 	for frame in 120:
@@ -21,6 +30,12 @@ func _ready() -> void:
 	var pursuers := get_tree().get_nodes_in_group("giant_wo_lew")
 	assert(pursuers.size() == 100, "the encounter must spawn exactly one hundred eyed lew")
 	assert(big_wo.encounter_spawned == 100, "all one hundred lew must spawn one interval apart")
+	for expected_position in expected_spawn_positions:
+		var at_this_point := 0
+		for hostile_lew in pursuers:
+			if hostile_lew.global_position.is_equal_approx(expected_position):
+				at_this_point += 1
+		assert(at_this_point == 25, "each of the four points must receive 25 hostile lew")
 	await get_tree().physics_frame
 	assert(not left_exit.visible and not left_exit.monitoring, "the left door must lock during the encounter")
 	assert(not right_exit.visible and not right_exit.monitoring, "the right door must lock during the encounter")
@@ -29,7 +44,14 @@ func _ready() -> void:
 		if other_pursuer != pursuer:
 			other_pursuer.set("chase_speed", 0.0)
 			other_pursuer.set("damage", 0)
+	var dormant_position := pursuer.global_position
+	await get_tree().physics_frame
+	assert(not pursuer.activated and pursuer.global_position == dormant_position, "hostile lew must wait until found")
 	pursuer.global_position = Vector2(400, 0)
+	player.global_position = Vector2(490, 0)
+	await get_tree().physics_frame
+	assert(pursuer.activated, "hostile lew must activate when the player comes within 100 px")
+	player.global_position = Vector2(900, 0)
 	var position_before_chase := pursuer.global_position
 	await get_tree().physics_frame
 	await get_tree().physics_frame
