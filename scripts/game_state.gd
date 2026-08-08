@@ -12,6 +12,7 @@ var circle_hit_unlocked := false
 var owned_charms: Array[String] = []
 var equipped_charms: Array[String] = []
 var big_wo_circle_hit_removed := false
+var big_wo_lew_encounter_completed := false
 var saykwastes_state: Dictionary = {}
 
 

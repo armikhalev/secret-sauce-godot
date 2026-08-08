@@ -27,7 +27,8 @@ func _ready() -> void:
 	circle_hit_removed = GameState.big_wo_circle_hit_removed
 	if circle_hit_removed:
 		_apply_relieved_state()
-		call_deferred("_start_lew_encounter")
+		if not GameState.big_wo_lew_encounter_completed:
+			call_deferred("_start_lew_encounter")
 	_update_selection()
 
 
@@ -100,6 +101,7 @@ func _start_lew_encounter() -> void:
 		return
 	encounter_started = true
 	add_to_group("giant_wo_mouth")
+	_set_scene_exits_enabled(false)
 	for spawn_index in encounter_lew_count:
 		if not is_inside_tree():
 			return
@@ -125,3 +127,12 @@ func consume_lew(lew: Node) -> void:
 		return
 	encounter_consumed += 1
 	lew.queue_free()
+	if encounter_consumed >= encounter_lew_count:
+		GameState.big_wo_lew_encounter_completed = true
+		_set_scene_exits_enabled(true)
+
+
+func _set_scene_exits_enabled(enabled: bool) -> void:
+	for exit in get_tree().get_nodes_in_group("scene_exit"):
+		if exit.has_method("set_exit_enabled"):
+			exit.set_exit_enabled(enabled)

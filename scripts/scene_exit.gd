@@ -10,14 +10,15 @@ var is_transitioning := false
 
 
 func _ready() -> void:
+	add_to_group("scene_exit")
 	body_entered.connect(_on_body_entered)
 	set_exit_enabled(enabled_on_start)
 
 
 func set_exit_enabled(enabled: bool) -> void:
 	visible = enabled
-	monitoring = enabled
-	monitorable = enabled
+	set_deferred("monitoring", enabled)
+	set_deferred("monitorable", enabled)
 
 
 func _on_body_entered(body: Node2D) -> void:
