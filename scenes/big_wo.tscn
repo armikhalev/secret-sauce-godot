@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://c5ojo1ukpl5kj" path="res://scripts/big_wo.gd" id="1_big_wo"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_big_wo"]
-radius = 330.0
+radius = 186.96791
 
 [node name="BigWo" type="Area2D" unique_id=679908746]
 collision_layer = 0
